@@ -39,13 +39,32 @@ int main(){
         printf("Exito\n");
     }
 
-    char* file_content = malloc(9*sizeof(char));
-
-    int leidos = fscanf(file, "%[^,]", file_content);
-    printf("%d", leidos);
-    for(int i = 0; i < 9; i++){
-        printf("EL elemento es: %c\n", *(file_content + i));
+    char* file_content = malloc(135*sizeof(char));
+    int leidos = fscanf(file, "%[^\n]", file_content);
+    
+    printf("Leidos: %d\n", leidos);
+    for(int i = 0; i < 135; i++){
+        printf("%c", *(file_content + i));
     }
+    printf("\n\n");
+
+    double* file_content2 = malloc(9*sizeof(double));    
+    char* comas = malloc(4*sizeof(char));
+    for(int i = 0; i < 7; i++){
+        fscanf(file, "%lf", file_content2 + i);
+        fscanf(file, "%c", comas + i);
+    }
+
+    for(int i = 0; i < 7; i++){
+        printf("EL elemento es: %lf\n", *(file_content2 + i));
+    }
+    
+    
+
+
+    
+    free(file_content);
+    free(file_content2);
     
 
     struct hashTable hash1;
