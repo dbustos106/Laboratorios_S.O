@@ -59,7 +59,7 @@ int main(){
     double media = hodSearch(hashTable, 1, 75);
     printf("Media: %f", media);
 
-    //buscar
+    
 
     eliminarHashTable(hashTable);
 
