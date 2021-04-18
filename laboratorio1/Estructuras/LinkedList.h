@@ -51,4 +51,12 @@ void eliminarLinkedList(LinkedList* linkedList){
     }
 }
 
+void escribirLinkedList(FILE* fileLinkedLists, LinkedList* linkedList){
+    Node* node = linkedList->head;
+    for(int i = 0; i < linkedList->size; i++){
+        escribirNodo(fileLinkedLists,node);
+        node = node->next;
+    }
+}
+
 #endif

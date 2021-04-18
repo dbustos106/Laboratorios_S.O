@@ -21,7 +21,7 @@ int getHash (int id) {
     return id;
 }
 
-void insertHash(HashTable * hashTable, int key, Travel* travel){
+void insertHash(HashTable* hashTable, int key, Travel* travel){
     insertTail(&hashTable->arreglo[key-1], key, travel);
 }
 
@@ -34,6 +34,13 @@ void eliminarHashTable(HashTable* hashTable){
         eliminarLinkedList(&hashTable->arreglo[i]);
     }
     free(hashTable);
+}
+
+void escribirHashTable(HashTable* hashTable, FILE* fileHashTable, FILE* fileLinkedLists){
+    for(int i = 0; i < 1160; i ++){
+        fprintf(fileHashTable,"%p,%p,%d\n",hashTable->arreglo[i].head, hashTable->arreglo[i].tail, hashTable->arreglo[i].size);
+        escribirLinkedList(fileLinkedLists, &hashTable->arreglo[i]);
+    }
 }
 
 #endif
