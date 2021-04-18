@@ -1,33 +1,38 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include "./Estructuras/HashTable.h"
 
-int p = 6007;
-int x = 29;
-int m;
-int n;
-
-struct node{
-    int id;
-    struct node *next;
-    double data[8];    
-};
-
-struct linkedList{
-    struct node *head;
-    struct node *tail;
-    int size;
-};
-
-typedef int(*GetHash)(int a);
-
-struct hashTable{
-    struct linkedList array[1];
-    GetHash getHash;
-};
-
-int getHash (int id) {
-    return id;
+void leerEncabezado(FILE* file){
+    char* file_content = malloc(135*sizeof(char));
+    int leidos = fscanf(file, "%[^\n]", file_content);
+    free(file_content);
 }
+
+void read(FILE* file){
+	//long unsigned int curPos=(7*sizeof(double) + 6*sizeof(char))*position + 135*sizeof(char);
+
+    Travel* file_content2 = createTravel();    
+    char* comas = malloc(sizeof(char));
+
+    fscanf(file, "%lf", &file_content2->sourceid);
+    fscanf(file, "%c", comas);
+    fscanf(file, "%lf", &file_content2->dstid);
+    fscanf(file, "%c", comas);
+    fscanf(file, "%lf", &file_content2->hod);
+    fscanf(file, "%c", comas);
+    fscanf(file, "%lf", &file_content2->mean_travel_time);
+    fscanf(file, "%c", comas);
+    fscanf(file, "%lf", &file_content2->standard_deviation_travel_time);
+    fscanf(file, "%c", comas);
+    fscanf(file, "%lf", &file_content2->geometric_mean_travel_time);
+    fscanf(file, "%c", comas);
+    fscanf(file, "%lf", &file_content2->geometric_standard_deviation_travel_time);
+    fscanf(file, "%c", comas);
+    
+    free(file_content2);
+    free(comas);
+}
+
 
 int main(){
     FILE *file;
@@ -39,37 +44,13 @@ int main(){
         printf("Exito\n");
     }
 
-    char* file_content = malloc(135*sizeof(char));
-    int leidos = fscanf(file, "%[^\n]", file_content);
-    
-    printf("Leidos: %d\n", leidos);
-    for(int i = 0; i < 135; i++){
-        printf("%c", *(file_content + i));
-    }
-    printf("\n\n");
-
-    double* file_content2 = malloc(9*sizeof(double));    
-    char* comas = malloc(4*sizeof(char));
-    for(int i = 0; i < 7; i++){
-        fscanf(file, "%lf", file_content2 + i);
-        fscanf(file, "%c", comas + i);
+    leerEncabezado(file);
+    while(!feof(file)){
+        read(file);
     }
 
-    for(int i = 0; i < 7; i++){
-        printf("EL elemento es: %lf\n", *(file_content2 + i));
-    }
-    
-    
+    printf("Hola Mundo");
 
-
-    
-    free(file_content);
-    free(file_content2);
-    
-
-    struct hashTable hash1;
-    hash1.getHash = getHash;
-    printf("Resultado: %d",hash1.getHash(1160));
     fclose(file);
     return 0;
 }
