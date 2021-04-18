@@ -11,6 +11,9 @@ typedef struct HashTable{
 
 HashTable* createHashTable(){
     HashTable* hashTable = (HashTable*) malloc(sizeof(HashTable));
+    for(int i = 0; i < 1160; i++){
+        hashTable->arreglo[i] = createList();
+    }
     return hashTable;
 }
 

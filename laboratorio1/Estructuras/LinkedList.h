@@ -11,11 +11,11 @@ typedef struct LinkedList{
     int size;
 }LinkedList;
 
-LinkedList* createList(){
-    LinkedList *linkedList = (LinkedList*)malloc(sizeof(LinkedList));
-    linkedList->head = NULL;
-    linkedList->tail = NULL; 
-    linkedList->size = 0;
+LinkedList createList(){
+    LinkedList linkedList;
+    linkedList.head = NULL;
+    linkedList.tail = NULL; 
+    linkedList.size = 0;
     return linkedList;
 }
 
