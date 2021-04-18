@@ -47,13 +47,12 @@ int main(){
     //free(hashTable);
 
     leerEncabezado(file);
-    int i = 0;
+
     while(!feof(file)){
         Travel* travel = createTravel();
         read(travel, file);
         insertHash(hashTable, travel->sourceid, travel);
         free(travel);
-        i++;
     }
 
 
