@@ -3,33 +3,31 @@
 #include "./Estructuras/HashTable.h"
 
 void leerEncabezado(FILE* file){
-    char* file_content = malloc(135*sizeof(char));
+    char* file_content = (char*) malloc(135*sizeof(char));
     int leidos = fscanf(file, "%[^\n]", file_content);
     free(file_content);
 }
 
-void read(FILE* file){
+void read(Travel* travel, FILE* file){
 	//long unsigned int curPos=(7*sizeof(double) + 6*sizeof(char))*position + 135*sizeof(char);
+ 
+    char* comas = (char*) malloc(sizeof(char));
 
-    Travel* file_content2 = createTravel();    
-    char* comas = malloc(sizeof(char));
-
-    fscanf(file, "%lf", &file_content2->sourceid);
+    fscanf(file, "%d", &travel->sourceid);
     fscanf(file, "%c", comas);
-    fscanf(file, "%lf", &file_content2->dstid);
+    fscanf(file, "%d", &travel->dstid);
     fscanf(file, "%c", comas);
-    fscanf(file, "%lf", &file_content2->hod);
+    fscanf(file, "%lf", &travel->hod);
     fscanf(file, "%c", comas);
-    fscanf(file, "%lf", &file_content2->mean_travel_time);
+    fscanf(file, "%lf", &travel->mean_travel_time);
     fscanf(file, "%c", comas);
-    fscanf(file, "%lf", &file_content2->standard_deviation_travel_time);
+    fscanf(file, "%lf", &travel->standard_deviation_travel_time);
     fscanf(file, "%c", comas);
-    fscanf(file, "%lf", &file_content2->geometric_mean_travel_time);
+    fscanf(file, "%lf", &travel->geometric_mean_travel_time);
     fscanf(file, "%c", comas);
-    fscanf(file, "%lf", &file_content2->geometric_standard_deviation_travel_time);
+    fscanf(file, "%lf", &travel->geometric_standard_deviation_travel_time);
     fscanf(file, "%c", comas);
     
-    free(file_content2);
     free(comas);
 }
 
@@ -44,12 +42,26 @@ int main(){
         printf("Exito\n");
     }
 
+    HashTable* hashTable = createHashTable();
+
     leerEncabezado(file);
+    int i=0;
     while(!feof(file)){
-        read(file);
+        Travel* travel = createTravel();
+        read(travel, file);
+        insertHash(hashTable, travel->sourceid, travel);
+        free(travel);
+        i++;
     }
 
-    printf("Hola Mundo");
+    double media = hodSearch(hashTable, 1, 75);
+    printf("Media: %f", media);
+
+
+    printf("\nHola Mundo1\n");
+    eliminarHashTable(hashTable);
+    printf("\nHola Mundo2\n");
+
 
     fclose(file);
     return 0;

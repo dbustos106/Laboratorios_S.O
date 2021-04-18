@@ -19,4 +19,8 @@ Node* createNode(int key, Travel *travel){
     return node;
 }
 
+void eliminarNodo(Node* node){
+    free(node);
+}
+
 #endif

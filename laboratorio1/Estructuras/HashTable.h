@@ -19,7 +19,17 @@ int getHash (int id) {
 }
 
 void insertHash(HashTable * hashTable, int key, Travel* travel){
-    insertTail(&hashTable->arreglo[key], key, travel);
+    insertTail(&hashTable->arreglo[key-1], key, travel);
+}
+
+double hodSearch(HashTable* hashTable, int sourceId, int dst){
+    return NodeSearch(&hashTable->arreglo[sourceId-1], sourceId, dst);
+}
+
+void eliminarHashTable(HashTable* hashTable){
+    for(int i = 0; i < 1160; i++){
+        eliminarLinkedList(&hashTable->arreglo[i]);
+    }
 }
 
 #endif
