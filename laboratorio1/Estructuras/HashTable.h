@@ -33,6 +33,7 @@ void eliminarHashTable(HashTable* hashTable){
     for(int i = 0; i < 1160; i++){
         eliminarLinkedList(&hashTable->arreglo[i]);
     }
+    free(hashTable);
 }
 
 #endif

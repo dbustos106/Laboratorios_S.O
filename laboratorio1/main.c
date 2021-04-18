@@ -44,8 +44,10 @@ int main(){
 
     HashTable* hashTable = createHashTable();
 
+    //free(hashTable);
+
     leerEncabezado(file);
-    int i=0;
+    int i = 0;
     while(!feof(file)){
         Travel* travel = createTravel();
         read(travel, file);
@@ -54,14 +56,13 @@ int main(){
         i++;
     }
 
+
     double media = hodSearch(hashTable, 1, 75);
     printf("Media: %f", media);
 
+    //buscar
 
-    printf("\nHola Mundo1\n");
     eliminarHashTable(hashTable);
-    printf("\nHola Mundo2\n");
-
 
     fclose(file);
     return 0;
