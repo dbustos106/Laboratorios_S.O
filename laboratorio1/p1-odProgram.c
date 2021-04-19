@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "solicitud.h"
 
 int main(){
     int opcion;
@@ -33,7 +34,7 @@ int main(){
 
             case 4:
                 printf("Búsqueda de tiempo de viaje medio iniciada \n");
-
+                hacerSolicitud();
             break;
 
             case 5: 
