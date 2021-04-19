@@ -2,18 +2,15 @@
 #include <stdlib.h>
 
 int main(){
-
     int opcion;
-
     do{
         printf("1) Ingresar origen \n");
         printf("2) Ingresar destino \n");
         printf("3) Ingresar hora \n");
         printf("4) Buscar tiempo de viaje medio \n");
-        printf("5) Salir \n");
+        printf("5) Salir \n\n");
         printf("Ingrese la opción: ");
         scanf("%d", &opcion);
-
 
         switch(opcion){
             case 1:
@@ -39,7 +36,9 @@ int main(){
 
             break;
 
-            case 5: break;
+            case 5: 
+                exit(-1);
+            break;
 
             default:
                 printf("Opción incorrecta, seleccione una opción válida \n");

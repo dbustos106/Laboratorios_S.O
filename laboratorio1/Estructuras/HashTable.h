@@ -12,14 +12,14 @@ typedef struct HashTable{
 
 HashTable* createHashTable(){
     HashTable* hashTable = (HashTable*) malloc(sizeof(HashTable));
+    if(hashTable == NULL){
+        printf("Error en la asignación de memoria del hashTable\n");
+        exit(-1);
+    }
     for(int i = 0; i < 1160; i++){
         hashTable->arreglo[i] = initList();
     }
     return hashTable;
-}
-
-int getHash (int id) {
-    return id;
 }
 
 void insertHash(FILE* fileHashTable, FILE* fileLinkedLists, HashTable* hashTable, int key, Travel* travel){ 

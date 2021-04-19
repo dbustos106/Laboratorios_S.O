@@ -1,3 +1,6 @@
+#ifndef Travel_h
+#define Travel_h
+
 #include<stdio.h>
 #include<stdlib.h>
 
@@ -11,6 +14,44 @@ typedef struct Travel{
     double geometric_standard_deviation_travel_time;
 }Travel;
 
+Travel* createTravel(){
+    Travel *travel = (Travel*)malloc(sizeof(Travel));
+    if(travel == NULL){
+        printf("Error en la asignación de memoria del travel\n");
+        exit(-1);
+    }
+    return travel;
+}
+
+bool read(Travel* travel, FILE* file){
+    bool lectura = true;
+    char* comas = (char*) malloc(sizeof(char));
+
+    if(fscanf(file, "%d%c", &travel->sourceid, comas) == EOF){
+        lectura = false;
+    }
+    if(fscanf(file, "%d%c", &travel->dstid, comas) == EOF){
+        lectura = false;
+    }
+    if(fscanf(file, "%lf%c", &travel->hod, comas) == EOF){
+        lectura = false;
+    }
+    if(fscanf(file, "%lf%c", &travel->mean_travel_time, comas) == EOF){
+        lectura = false;
+    }
+    if(fscanf(file, "%lf%c", &travel->standard_deviation_travel_time, comas) == EOF){
+        lectura = false;
+    }
+    if(fscanf(file, "%lf%c", &travel->geometric_mean_travel_time, comas) == EOF){
+        lectura = false;
+    }
+    if(fscanf(file, "%lf%c", &travel->geometric_standard_deviation_travel_time, comas) == EOF){
+        lectura = false;
+    }
+    free(comas);
+    return lectura;
+} 
+
 void writeTravel(FILE* fileLinkedLists, int key, Travel* travel, int nextCur){
     fwrite(&key, sizeof(int),1,fileLinkedLists);
     fwrite(&travel->sourceid,sizeof(int),1,fileLinkedLists);
@@ -23,7 +64,4 @@ void writeTravel(FILE* fileLinkedLists, int key, Travel* travel, int nextCur){
     fwrite(&nextCur,sizeof(int),1,fileLinkedLists);
 }
 
-Travel* createTravel(){
-    Travel *travel = (Travel*)malloc(sizeof(Travel));
-    return travel;
-}
+#endif

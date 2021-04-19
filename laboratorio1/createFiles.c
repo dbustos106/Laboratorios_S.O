@@ -5,39 +5,12 @@
 
 void leerEncabezado(FILE* file){
     char* file_content = (char*) malloc(135*sizeof(char));
-    int leidos = fscanf(file, "%[^\n]", file_content);
+    if(file_content == NULL){
+        printf("Error en la asignación de memoria del encabezado\n");
+        exit(-1);
+    }
+    fscanf(file, "%[^\n]", file_content);
     free(file_content);
-}
-
-bool read(Travel* travel, FILE* file){
-    bool lectura = true;
-    char* comas = (char*) malloc(sizeof(char));
-
-    if(fscanf(file, "%d%c", &travel->sourceid, comas) == EOF){
-        lectura = false;
-    }
-
-    if(fscanf(file, "%d%c", &travel->dstid, comas) == EOF){
-        lectura = false;
-    }
-    if(fscanf(file, "%lf%c", &travel->hod, comas) == EOF){
-        lectura = false;
-    }
-    if(fscanf(file, "%lf%c", &travel->mean_travel_time, comas) == EOF){
-        lectura = false;
-    }
-    if(fscanf(file, "%lf%c", &travel->standard_deviation_travel_time, comas) == EOF){
-        lectura = false;
-    }
-    if(fscanf(file, "%lf%c", &travel->geometric_mean_travel_time, comas) == EOF){
-        lectura = false;
-    }
-    if(fscanf(file, "%lf%c", &travel->geometric_standard_deviation_travel_time, comas) == EOF){
-        lectura = false;
-    }
-
-    free(comas);
-    return lectura;
 }
 
 FILE* openFile(FILE* file, char* dir, char* modo){
@@ -78,6 +51,7 @@ int main(){
         insertHash(fileHashTable, fileLinkedLists, hashTable, travel->sourceid, travel);
         free(travel);
     }
+
     fclose(file);
     fclose(fileHashTable);
     fclose(fileLinkedLists);
