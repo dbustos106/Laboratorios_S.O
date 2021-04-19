@@ -25,5 +25,5 @@ void writeTravel(FILE* fileLinkedLists, int key, Travel* travel, int nextCur){
 
 Travel* createTravel(){
     Travel *travel = (Travel*)malloc(sizeof(Travel));
-   return travel;
+    return travel;
 }
