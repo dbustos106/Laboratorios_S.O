@@ -37,14 +37,11 @@ void insertHash(FILE* fileHashTable, FILE* fileLinkedLists, HashTable* hashTable
         fwrite(&curLinkedList,sizeof(int),1,fileHashTable);
         
     }else{
-        //Conseguir la cola de la lista enlazada
+        //Conseguir la posición de la lista enlazada
         int posHashTable = getPosHashTable(&hashTable->arreglo[key-1]);
-        fseek(fileHashTable, posHashTable + 2*sizeof(int), SEEK_SET);
-        int tail;
-        fread(&tail,sizeof(int),1,fileHashTable);
 
-        fseek(fileLinkedLists, tail + 3*sizeof(int) + 5*sizeof(double), SEEK_SET);
         //Cambiar el nextCur
+        fseek(fileLinkedLists, hashTable->arreglo[key-1].tailCur + 3*sizeof(int) + 5*sizeof(double), SEEK_SET);
         fwrite(&curLinkedList,sizeof(int),1,fileLinkedLists);
         
         //Cambiar la cola de la lista enlazada

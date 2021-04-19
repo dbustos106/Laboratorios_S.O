@@ -53,11 +53,7 @@ FILE* openFile(FILE* file, char* dir, char* modo){
 int main(){
     //Leer el archivo bogota-cadastral-2020
     FILE *file;
-
     file = openFile(file, "bogota-cadastral-2020-1-All-HourlyAggregate.dat", "rb");
-
-    //Crear una HashTable
-    HashTable* hashTable = createHashTable();
 
     //Crear un archivo para almacenar la HashTable
     FILE *fileHashTable;
@@ -67,10 +63,12 @@ int main(){
     FILE *fileLinkedLists;
     fileLinkedLists = openFile(fileLinkedLists, "fileLinkedLists.txt", "w+");
 
+    HashTable* hashTable = createHashTable();
+
     //Leer encabezado de la tabla
-    leerEncabezado(file);
+    leerEncabezado(file);     
+    
     //Leer cada uno de los datos e insertarlos en la hashTable
-    int i = 0;
     while(!feof(file)){
         Travel* travel = createTravel();
         bool lectura = read(travel, file);
@@ -78,75 +76,9 @@ int main(){
             break;
         }
         insertHash(fileHashTable, fileLinkedLists, hashTable, travel->sourceid, travel);
-        //if(travel->sourceid == 951){
-        //    printf("%d ", i);
-        //}
         free(travel);
-        if(i==2021){
-            break;
-        }
-        i++;
     }
     fclose(file);
-
-    fseek(fileHashTable, 0, SEEK_SET);
-    int k = 0;
-    printf("HASHTABLE\n");
-    while(!feof(fileHashTable)){
-        int cadena;
-        int cadena1;
-        int cadena2;
-        fread(&cadena, sizeof(int),1,fileHashTable);
-        fread(&cadena1, sizeof(int),1,fileHashTable);
-        fread(&cadena2, sizeof(int),1,fileHashTable);
-        if(k < 4){
-            printf("%d,", cadena);
-            printf("%d,", cadena1);
-            printf("%d\n", cadena2);
-        }
-        k++;
-    }
-
-
-    printf("\n\n");
-    fseek(fileLinkedLists, 0, SEEK_SET);
-    int j = 0;
-    while(!feof(fileLinkedLists)){
-        int cadena;
-        int cadena1;
-        int cadena2;
-        double cadena3;
-        double cadena4;
-        double cadena5;
-        double cadena6;
-        double cadena7;
-        int cadena8;
-        fread(&cadena, sizeof(int),1,fileLinkedLists);
-        fread(&cadena1, sizeof(int),1,fileLinkedLists);
-        fread(&cadena2, sizeof(int),1,fileLinkedLists);
-        fread(&cadena3, sizeof(double),1,fileLinkedLists);
-        fread(&cadena4, sizeof(double),1,fileLinkedLists);
-        fread(&cadena5, sizeof(double),1,fileLinkedLists);
-        fread(&cadena6, sizeof(double),1,fileLinkedLists);
-        fread(&cadena7, sizeof(double),1,fileLinkedLists);
-        fread(&cadena8, sizeof(int),1,fileLinkedLists);
-        //if((j > 0 && j < 7)|| (j > 382 && j < 387) || (j > 573 && j < 577)|| (j > 643 && j < 647)){
-        if((j > 1 && j < 7)|| (j > 696 && j < 703) || (j > 2004 && j < 2010)){
-            printf("%d,", cadena);
-            printf("%d,", cadena1);
-            printf("%d,", cadena2);
-            printf("%f,", cadena3);
-            printf("%f,", cadena4);
-            printf("%f,", cadena5);
-            printf("%f,", cadena6);
-            printf("%f,", cadena7);
-            printf("%d\n", cadena8);
-        }
-        j++;
-    }
-
-
-
     fclose(fileHashTable);
     fclose(fileLinkedLists);
     
