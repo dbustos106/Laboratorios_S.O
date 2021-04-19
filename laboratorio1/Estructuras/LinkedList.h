@@ -3,40 +3,29 @@
 
 #include<stdio.h>
 #include<stdlib.h>
-#include "Node.h"
 
 typedef struct LinkedList{
-    struct Node *head;
-    struct Node *tail;
-    int size;
+    int headCur;
+    int tailCur;
+    int posHashTable;
 }LinkedList;
 
-LinkedList createList(){
+LinkedList initList(){
     LinkedList linkedList;
-    linkedList.head = NULL;
-    linkedList.tail = NULL; 
-    linkedList.size = 0;
+    linkedList.headCur = -1;
+    linkedList.tailCur = -1; 
+    linkedList.posHashTable = -1;
     return linkedList;
 }
 
-void insertTail(LinkedList *list, int key, Travel* travel) {
-    Node* node = createNode(key, travel);
-
-    if (list->head == NULL) {
-        list->head = node;
-    } else {
-        list->tail->next = node;
-    }
-    list->tail = node;
-    return;
+void createList(LinkedList *list, int posHashTable, int headCur, int tailCur) {
+    list->headCur = headCur;
+    list->tailCur = tailCur;
+    list->posHashTable = posHashTable;
 }
 
-void eliminarLinkedList(LinkedList* linkedList){
-    while(linkedList->head != NULL){
-        Node* node = linkedList->head->next;
-        eliminarNodo(linkedList->head);
-        linkedList->head = node;
-    }
+int getPosHashTable(LinkedList *list){
+    return list->posHashTable;
 }
 
 #endif
