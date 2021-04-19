@@ -13,100 +13,88 @@ bool read(Travel* travel, FILE* file){
     bool lectura = true;
     char* comas = (char*) malloc(sizeof(char));
 
-    if(fscanf(file, "%d", &travel->sourceid) == EOF){
+    if(fscanf(file, "%d%c", &travel->sourceid, comas) == EOF){
         lectura = false;
     }
-    if(fscanf(file, "%c", comas) == EOF){
+
+    if(fscanf(file, "%d%c", &travel->dstid, comas) == EOF){
         lectura = false;
     }
-    if(fscanf(file, "%d", &travel->dstid) == EOF){
+    if(fscanf(file, "%lf%c", &travel->hod, comas) == EOF){
         lectura = false;
     }
-    if(fscanf(file, "%c", comas) == EOF){
+    if(fscanf(file, "%lf%c", &travel->mean_travel_time, comas) == EOF){
         lectura = false;
     }
-    if(fscanf(file, "%lf", &travel->hod) == EOF){
+    if(fscanf(file, "%lf%c", &travel->standard_deviation_travel_time, comas) == EOF){
         lectura = false;
     }
-    if(fscanf(file, "%c", comas) == EOF){
+    if(fscanf(file, "%lf%c", &travel->geometric_mean_travel_time, comas) == EOF){
         lectura = false;
     }
-    if(fscanf(file, "%lf", &travel->mean_travel_time) == EOF){
+    if(fscanf(file, "%lf%c", &travel->geometric_standard_deviation_travel_time, comas) == EOF){
         lectura = false;
     }
-    if(fscanf(file, "%c", comas) == EOF){
-        lectura = false;
-    }
-    if(fscanf(file, "%lf", &travel->standard_deviation_travel_time) == EOF){
-        lectura = false;
-    }
-    if(fscanf(file, "%c", comas) == EOF){
-        lectura = false;
-    }
-    if(fscanf(file, "%lf", &travel->geometric_mean_travel_time) == EOF){
-        lectura = false;
-    }
-    if(fscanf(file, "%c", comas) == EOF){
-        lectura = false;
-    }
-    if(fscanf(file, "%lf", &travel->geometric_standard_deviation_travel_time) == EOF){
-        lectura = false;
-    }
-    if(fscanf(file, "%c", comas) == EOF){
-        lectura = false;
-    }
-    return lectura;
+
     free(comas);
+    return lectura;
 }
 
-
-int main(){
-    FILE *file;
-    printf("Inicio programa\n");
-    file=fopen("bogota-cadastral-2020-1-All-HourlyAggregate.txt", "rb");
+FILE* openFile(FILE* file, char* dir, char* modo){
+    file=fopen(dir, modo);
     if(file==NULL){
-        printf("Error leyendo archivo \n");
+        printf("Error leyendo archivo\n");
     }else{
         printf("Archivo leido con exito\n");
     }
+    return file;
+}
 
+int main(){
+    //Leer el archivo bogota-cadastral-2020
+    FILE *file;
+
+    file = openFile(file, "bogota-cadastral-2020-1-All-HourlyAggregate.dat", "rb");
+
+    //Crear una HashTable
     HashTable* hashTable = createHashTable();
 
+    //Crear un archivo para almacenar la HashTable
+    FILE *fileHashTable;
+    fileHashTable = openFile(fileHashTable, "fileHashTable.txt", "w+");
+
+    //Crear un archivo para almacenar las linkedList
+    FILE *fileLinkedLists;
+    fileLinkedLists = openFile(fileLinkedLists, "fileLinkedLists.txt", "w+");
+
+    //Leer encabezado de la tabla
     leerEncabezado(file);
+    //Leer cada uno de los datos e insertarlos en la hashTable
+    int i = 0;
     while(!feof(file)){
         Travel* travel = createTravel();
         bool lectura = read(travel, file);
         if(lectura == false){
             break;
         }
-        insertHash(hashTable, travel->sourceid, travel);
+        insertHash(fileHashTable, fileLinkedLists, hashTable, travel->sourceid, travel);
+        //if(travel->sourceid == 951){
+        //    printf("%d ", i);
+        //}
         free(travel);
+        if(i==2021){
+            break;
+        }
+        i++;
     }
     fclose(file);
 
-    //double media = hodSearch(hashTable, 1, 75);
-    //printf("Media: %f", media);
-    
-    FILE *fileHashTable;
-    fileHashTable = fopen("fileHashTable.txt", "wb");
-    if(fileHashTable==NULL){
-        printf("Error leyendo archivo \n");
-    }else{
-        printf("Archivo leido con exito\n");
-    }
-    FILE *fileLinkedLists;
-    fileLinkedLists = fopen("fileLinkedList.txt", "wb");
-    if(fileLinkedLists==NULL){
-        printf("Error leyendo archivo \n");
-    }else{
-        printf("Archivo leido con exito\n");
-    }
-    
-    escribirHashTable(hashTable, fileHashTable, fileLinkedLists);
 
     fclose(fileHashTable);
     fclose(fileLinkedLists);
     
+    //ELiminar la hash
     eliminarHashTable(hashTable);
+
     return 0;
 }

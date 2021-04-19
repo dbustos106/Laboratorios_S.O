@@ -23,16 +23,5 @@ void eliminarNodo(Node* node){
     free(node);
 }
 
-void escribirNodo(FILE* fileLinkedLists, Node* node){
-    fprintf(fileLinkedLists, "%d,%d,%d,%f,%f,%f,%f,%f,%p\n", node->key, 
-        node->travel.sourceid, 
-        node->travel.dstid,
-        node->travel.hod,
-        node->travel.mean_travel_time,
-        node->travel.standard_deviation_travel_time,
-        node->travel.geometric_mean_travel_time,
-        node->travel.geometric_standard_deviation_travel_time,
-        node->next);
-}
 
 #endif

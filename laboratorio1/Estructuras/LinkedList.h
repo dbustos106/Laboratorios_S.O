@@ -28,34 +28,14 @@ void insertTail(LinkedList *list, int key, Travel* travel) {
         list->tail->next = node;
     }
     list->tail = node;
-    list->size = list->size + 1;
     return;
 }
 
-double NodeSearch(LinkedList* list, int sourceId, int dst){
-    Node* node = list->head;
-    for(int i = 0; i < list->size; i++){
-        if(node->travel.dstid == dst){
-            return node->travel.hod;
-        }
-        node = node->next;
-    }
-    return -1;    
-}
-
 void eliminarLinkedList(LinkedList* linkedList){
-    for(int i = 0; i < linkedList->size; i++){
+    while(linkedList->head != NULL){
         Node* node = linkedList->head->next;
         eliminarNodo(linkedList->head);
         linkedList->head = node;
-    }
-}
-
-void escribirLinkedList(FILE* fileLinkedLists, LinkedList* linkedList){
-    Node* node = linkedList->head;
-    for(int i = 0; i < linkedList->size; i++){
-        escribirNodo(fileLinkedLists,node);
-        node = node->next;
     }
 }
 

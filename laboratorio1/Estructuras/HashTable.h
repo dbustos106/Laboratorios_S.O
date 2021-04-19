@@ -21,12 +21,41 @@ int getHash (int id) {
     return id;
 }
 
-void insertHash(HashTable* hashTable, int key, Travel* travel){
-    insertTail(&hashTable->arreglo[key-1], key, travel);
-}
+void insertHash(FILE* fileHashTable, FILE* fileLinkedLists, HashTable* hashTable, int key, Travel* travel){ 
+    fseek(fileLinkedLists, 0, SEEK_END);
+    int cur = ftell(fileLinkedLists);
+    int next = -1;
+    fwrite(&key, sizeof(int),1,fileLinkedLists);
+    fwrite(&travel->sourceid,sizeof(int),1,fileLinkedLists);
+    fwrite(&travel->dstid,sizeof(int),1,fileLinkedLists);
+    fwrite(&travel->hod,sizeof(double),1,fileLinkedLists);
+    fwrite(&travel->mean_travel_time,sizeof(double),1,fileLinkedLists);
+    fwrite(&travel->standard_deviation_travel_time,sizeof(double),1,fileLinkedLists);
+    fwrite(&travel->geometric_mean_travel_time,sizeof(double),1,fileLinkedLists);
+    fwrite(&travel->geometric_standard_deviation_travel_time,sizeof(double),1,fileLinkedLists);
+    fwrite(&next,sizeof(int),1,fileLinkedLists);
+    if(hashTable->arreglo[key-1].head == NULL){
+        fseek(fileHashTable, 0, SEEK_END);
+        int curHash = ftell(fileHashTable);
 
-double hodSearch(HashTable* hashTable, int sourceId, int dst){
-    return NodeSearch(&hashTable->arreglo[sourceId-1], sourceId, dst);
+        hashTable->arreglo[key-1].size = curHash;
+        
+        fwrite(&key,sizeof(int),1,fileHashTable);
+        fwrite(&cur,sizeof(int),1,fileHashTable);
+        fwrite(&cur,sizeof(int),1,fileHashTable);
+    }else{
+        int curH = hashTable->arreglo[key-1].size;
+        fseek(fileHashTable, curH + 2*sizeof(int), SEEK_SET);
+        int tail;
+        fread(&tail,sizeof(int),1,fileHashTable);
+
+        fseek(fileLinkedLists, tail + 3*sizeof(int) + 5*sizeof(double), SEEK_SET);
+        fwrite(&cur,sizeof(int),1,fileLinkedLists);
+        
+        fseek(fileHashTable, curH + 2*sizeof(int), SEEK_SET);
+        fwrite(&cur,sizeof(int),1,fileHashTable);
+    }
+    insertTail(&hashTable->arreglo[key-1], key, travel);
 }
 
 void eliminarHashTable(HashTable* hashTable){
@@ -34,13 +63,6 @@ void eliminarHashTable(HashTable* hashTable){
         eliminarLinkedList(&hashTable->arreglo[i]);
     }
     free(hashTable);
-}
-
-void escribirHashTable(HashTable* hashTable, FILE* fileHashTable, FILE* fileLinkedLists){
-    for(int i = 0; i < 1160; i ++){
-        fprintf(fileHashTable,"%p,%p,%d\n",hashTable->arreglo[i].head, hashTable->arreglo[i].tail, hashTable->arreglo[i].size);
-        escribirLinkedList(fileLinkedLists, &hashTable->arreglo[i]);
-    }
 }
 
 #endif
