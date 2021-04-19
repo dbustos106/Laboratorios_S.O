@@ -53,15 +53,15 @@ FILE* openFile(FILE* file, char* dir, char* modo){
 int main(){
     //Leer el archivo bogota-cadastral-2020
     FILE *file;
-    file = openFile(file, "bogota-cadastral-2020-1-All-HourlyAggregate.dat", "rb");
+    file = openFile(file, "./Archivos/bogota-cadastral-2020-1-All-HourlyAggregate.dat", "rb");
 
     //Crear un archivo para almacenar la HashTable
     FILE *fileHashTable;
-    fileHashTable = openFile(fileHashTable, "fileHashTable.txt", "w+");
+    fileHashTable = openFile(fileHashTable, "./Archivos/fileHashTable.txt", "w+");
 
     //Crear un archivo para almacenar las linkedList
     FILE *fileLinkedLists;
-    fileLinkedLists = openFile(fileLinkedLists, "fileLinkedLists.txt", "w+");
+    fileLinkedLists = openFile(fileLinkedLists, "./Archivos/fileLinkedLists.txt", "w+");
 
     HashTable* hashTable = createHashTable();
 
