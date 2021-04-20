@@ -1,9 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <time.h>
 #include "solicitud.h"
 
-int main(){
-    int opcion;
+int main(){    
+    int opcion = -1;
+    int sourceid = -1;
+    int dstid = -1;
+    int hod = -1;
     do{
         printf("1) Ingresar origen \n");
         printf("2) Ingresar destino \n");
@@ -16,25 +21,34 @@ int main(){
         switch(opcion){
             case 1:
                 printf("Ingrese el ID del origen: ");
-                int sourceid;
                 scanf("%d", &sourceid);
             break;
 
             case 2:
                 printf("Ingrese el ID del destino: ");
-                int dstid;
                 scanf("%d", &dstid);
             break;
 
             case 3:
                 printf("Ingrese la hora del día: ");
-                int hod;
                 scanf("%d", &hod);
             break;
 
             case 4:
                 printf("Búsqueda de tiempo de viaje medio iniciada \n");
-                hacerSolicitud();
+	            
+                struct timespec begin, end; 
+                clock_gettime(CLOCK_REALTIME, &begin);
+
+                double mean_time = hacerSolicitud((double) sourceid, (double) dstid);
+                printf("Media: %f\n", mean_time);
+
+                clock_gettime(CLOCK_REALTIME, &end);
+
+                long seconds = end.tv_sec - begin.tv_sec;
+                long nanoseconds = end.tv_nsec - begin.tv_nsec;
+                double elapsed = seconds + nanoseconds*1e-9;
+                printf("Tiempo: %f\n", elapsed);
             break;
 
             case 5: 
