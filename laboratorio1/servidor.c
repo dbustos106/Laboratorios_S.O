@@ -18,26 +18,26 @@ int main(){
         printf("Error en shmget");
         exit(-1);
     }
+
     ap = (double*)shmat(shmId, 0, 0);
     if(ap < 0){
         perror("Error en shamt");
         exit(-1);
     }
 
+
     while(*ap == 0 && *(ap + 1) == 0 && *(ap + 2) == 0){
         usleep(50000);
     }
     *(ap + 3) = busqueda((int)*(ap),(int)*(ap + 1),(int)*(ap + 2));
-
     //*(ap + 3) = -1.2;
+
 
     r = shmdt(ap);
     if(r < 0){
         perror("Error en shmdt");
         exit(-1);
     }
-
-    shmctl(shmId, IPC_RMID, 0);
-    
+    shmctl(shmId, IPC_RMID, 0);    
     return 0;
 }

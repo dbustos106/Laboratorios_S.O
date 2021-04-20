@@ -20,8 +20,8 @@ double hacerSolicitud(double sourceId, double dstId, double hod){
         printf("Error en shmget");
         exit(-1);
     }
-    ap = (double*)shmat(shmId, 0, 0);
 
+    ap = (double*)shmat(shmId, 0, 0);
     if(ap < 0){
         perror("Error en shamt");
         exit(-1);
@@ -37,17 +37,13 @@ double hacerSolicitud(double sourceId, double dstId, double hod){
     double mean_time = *(ap + 3);
 
 
-
     r = shmdt(ap);
     if(r < 0){
         perror("Error en shmdt");
         exit(-1);
     }
     shmctl(shmId, IPC_RMID, 0);
-
     return mean_time;
 }
-
-
 
 #endif
