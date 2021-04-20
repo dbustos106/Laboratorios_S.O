@@ -1,11 +1,8 @@
-.DEFAULT_GOAL := procesoSuma
-procesoSuma: escritura suma limpiar
-	@echo "suma finalizada"
-escritura:
-	gcc ejemplo1.c -o ejemplo1
-	./ejemplo1
-suma: escritura
-	gcc ejemplo2.c -o ejemplo2
-	./ejemplo2
-limpiar:
-	rm out.txt
+.DEFAULT_GOAL := correrPrograma, correrServer
+correrPrograma:
+	gcc servidor.c -o servidor
+	./servidor
+correrServer:
+	gcc p1-odProgram.c -o p1-odProgram
+	./p1-odProgram
+	

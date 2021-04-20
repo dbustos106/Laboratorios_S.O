@@ -15,7 +15,6 @@ FILE* openFile(FILE* file, char* dir, char* modo){
 }
 
 double busqueda(int sourceId, int dstId, int hod){
-    printf("%d, %d, %d", sourceId, dstId, hod);
     FILE* fileHashTable;
     fileHashTable = openFile(fileHashTable, "./Archivos/fileHashTable.dat", "rb");
     FILE* fileLinkedList;
@@ -24,35 +23,26 @@ double busqueda(int sourceId, int dstId, int hod){
     int i = 0;
     int readHeadCur;
     int readTailCur;
-    while(!feof(fileHashTable)){
-        int readSourceId;
-        fseek(fileHashTable, 3*i*sizeof(int) ,SEEK_SET);
-        fread(&readSourceId,sizeof(int),1,fileHashTable);
-        if(sourceId == readSourceId){
-            fread(&readHeadCur,sizeof(int),1,fileHashTable);
-            fread(&readTailCur,sizeof(int),1,fileHashTable);
-            break;
-        }
-        i++;
-    }
-    printf("%d, %d \n",readHeadCur,readTailCur);
-
+    fseek(fileHashTable, (sourceId-1)*3*sizeof(int) + sizeof(int), SEEK_SET);
+    fread(&readHeadCur,sizeof(int),1,fileHashTable);
+    fread(&readTailCur,sizeof(int),1,fileHashTable);
+    int j = 0;
     do{
-        fseek(fileLinkedList,readHeadCur+2*sizeof(int),SEEK_CUR);
+        fseek(fileLinkedList,readHeadCur+sizeof(int),SEEK_SET);
         int readDstId;
         fread(&readDstId,sizeof(int),1,fileLinkedList);
         int readHod;
         fread(&readHod,sizeof(int),1,fileLinkedList);
         if(readDstId == dstId && readHod == hod){
             double readMean_time;
-            fread(&readMean_time,sizeof(int),1,fileLinkedList);
+            fread(&readMean_time,sizeof(double),1,fileLinkedList);
             return readMean_time;
         }else{
-            fseek(fileLinkedList,5*sizeof(double),SEEK_CUR);
-            fread(&readHeadCur,sizeof(int),1,fileHashTable);
+            fseek(fileLinkedList, 4*sizeof(double),SEEK_CUR);
+            fread(&readHeadCur,sizeof(int),1,fileLinkedList);
         }
     }while(readHeadCur!=-1);
     printf("NA");
-    return 0.0;
+    return -1.0;
 }
 #endif

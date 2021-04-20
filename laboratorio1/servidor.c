@@ -24,13 +24,10 @@ int main(){
         exit(-1);
     }
 
-
     while(*ap == 0 && *(ap + 1) == 0 && *(ap +2) == 0){
         usleep(500000);
     }
     *(ap + 3) = busqueda((int)*(ap),(int)*(ap+1),(int)*(ap+2));
-
-
 
     r = shmdt(ap);
     if(r < 0){

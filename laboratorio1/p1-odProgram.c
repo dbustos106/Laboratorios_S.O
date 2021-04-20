@@ -41,7 +41,11 @@ int main(){
                 clock_gettime(CLOCK_REALTIME, &begin);
 
                 double mean_time = hacerSolicitud((double) sourceid, (double) dstid, (double) hod);
-                printf("Media: %f\n", mean_time);
+                if(mean_time == -1){
+                    printf("NA\n");
+                }else{
+                    printf("Media: %f\n", mean_time);
+                }
 
                 clock_gettime(CLOCK_REALTIME, &end);
 

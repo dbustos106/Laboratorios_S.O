@@ -7,7 +7,7 @@
 typedef struct Travel{
     int sourceid;
     int dstid;
-    double hod;
+    int hod;
     double mean_travel_time;
     double standard_deviation_travel_time;
     double geometric_mean_travel_time;
@@ -33,7 +33,7 @@ bool read(Travel* travel, FILE* file){
     if(fscanf(file, "%d%c", &travel->dstid, comas) == EOF){
         lectura = false;
     }
-    if(fscanf(file, "%lf%c", &travel->hod, comas) == EOF){
+    if(fscanf(file, "%d%c", &travel->hod, comas) == EOF){
         lectura = false;
     }
     if(fscanf(file, "%lf%c", &travel->mean_travel_time, comas) == EOF){
@@ -52,11 +52,10 @@ bool read(Travel* travel, FILE* file){
     return lectura;
 } 
 
-void writeTravel(FILE* fileLinkedLists, int key, Travel* travel, int nextCur){
-    fwrite(&key, sizeof(int),1,fileLinkedLists);
+void writeTravel(FILE* fileLinkedLists, Travel* travel, int nextCur){
     fwrite(&travel->sourceid,sizeof(int),1,fileLinkedLists);
     fwrite(&travel->dstid,sizeof(int),1,fileLinkedLists);
-    fwrite(&travel->hod,sizeof(double),1,fileLinkedLists);
+    fwrite(&travel->hod,sizeof(int),1,fileLinkedLists);
     fwrite(&travel->mean_travel_time,sizeof(double),1,fileLinkedLists);
     fwrite(&travel->standard_deviation_travel_time,sizeof(double),1,fileLinkedLists);
     fwrite(&travel->geometric_mean_travel_time,sizeof(double),1,fileLinkedLists);

@@ -30,11 +30,11 @@ int main(){
 
     //Crear un archivo para almacenar la HashTable
     FILE *fileHashTable;
-    fileHashTable = openFile(fileHashTable, "./Archivos/fileHashTable.txt", "w+");
+    fileHashTable = openFile(fileHashTable, "./Archivos/fileHashTable.dat", "w+");
 
     //Crear un archivo para almacenar las linkedList
     FILE *fileLinkedLists;
-    fileLinkedLists = openFile(fileLinkedLists, "./Archivos/fileLinkedLists.txt", "w+");
+    fileLinkedLists = openFile(fileLinkedLists, "./Archivos/fileLinkedLists.dat", "w+");
 
     HashTable* hashTable = createHashTable();
 
@@ -48,7 +48,7 @@ int main(){
         if(lectura == false){
             break;
         }
-        insertHash(fileHashTable, fileLinkedLists, hashTable, travel->sourceid, travel);
+        insertHash(fileHashTable, fileLinkedLists, hashTable, travel);
         free(travel);
     }
 

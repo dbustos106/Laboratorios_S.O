@@ -22,34 +22,33 @@ HashTable* createHashTable(){
     return hashTable;
 }
 
-void insertHash(FILE* fileHashTable, FILE* fileLinkedLists, HashTable* hashTable, int key, Travel* travel){ 
+void insertHash(FILE* fileHashTable, FILE* fileLinkedLists, HashTable* hashTable, Travel* travel){ 
     fseek(fileLinkedLists, 0, SEEK_END);
     int curLinkedList = ftell(fileLinkedLists);
-    writeTravel(fileLinkedLists, key, travel, -1);
+    writeTravel(fileLinkedLists, travel, -1);
 
-    if(hashTable->arreglo[key-1].headCur == -1){
-        fseek(fileHashTable, 0, SEEK_END);
-        int posHashTable = ftell(fileHashTable);
-        createList(&hashTable->arreglo[key-1], posHashTable, curLinkedList, curLinkedList);
+    if(hashTable->arreglo[travel->sourceid-1].headCur == -1){
+        fseek(fileHashTable, 3*sizeof(int)*(travel->sourceid-1), SEEK_SET);
 
-        fwrite(&key,sizeof(int),1,fileHashTable);
+        createList(&hashTable->arreglo[travel->sourceid-1], curLinkedList, curLinkedList);
+
+        fwrite(&travel->sourceid,sizeof(int),1,fileHashTable);
         fwrite(&curLinkedList,sizeof(int),1,fileHashTable);
         fwrite(&curLinkedList,sizeof(int),1,fileHashTable);
         
     }else{
         //Conseguir la posición de la lista enlazada
-        int posHashTable = getPosHashTable(&hashTable->arreglo[key-1]);
+        int posHashTable = 3*sizeof(int)*(travel->sourceid-1);
 
         //Cambiar el nextCur
-        fseek(fileLinkedLists, hashTable->arreglo[key-1].tailCur + 3*sizeof(int) + 5*sizeof(double), SEEK_SET);
+        fseek(fileLinkedLists, hashTable->arreglo[travel->sourceid-1].tailCur + 3*sizeof(int) + 4*sizeof(double), SEEK_SET);
         fwrite(&curLinkedList,sizeof(int),1,fileLinkedLists);
         
         //Cambiar la cola de la lista enlazada
         fseek(fileHashTable, posHashTable + 2*sizeof(int), SEEK_SET);
         fwrite(&curLinkedList,sizeof(int),1,fileHashTable);
-        hashTable->arreglo[key-1].tailCur = curLinkedList;
+        hashTable->arreglo[travel->sourceid-1].tailCur = curLinkedList;
     }
-    
 }
 
 #endif
