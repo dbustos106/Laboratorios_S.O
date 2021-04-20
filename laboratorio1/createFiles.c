@@ -44,7 +44,7 @@ int main(){
     //Leer cada uno de los datos e insertarlos en la hashTable
     while(!feof(file)){
         Travel* travel = createTravel();
-        bool lectura = read(travel, file);
+        bool lectura = readTravel(travel, file);
         if(lectura == false){
             break;
         }

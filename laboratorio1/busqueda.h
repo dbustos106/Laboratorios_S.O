@@ -3,6 +3,7 @@
 
 #include<stdio.h>
 #include<stdlib.h>
+#include"./Estructuras/Travel.h"
 
 FILE* openFile(FILE* file, char* dir, char* modo){
     file=fopen(dir, modo);
@@ -20,29 +21,31 @@ double busqueda(int sourceId, int dstId, int hod){
     FILE* fileLinkedList;
     fileLinkedList = openFile(fileLinkedList, "./Archivos/fileLinkedLists.dat", "rb");
 
-    int i = 0;
     int readHeadCur;
-    int readTailCur;
-    fseek(fileHashTable, (sourceId-1)*3*sizeof(int) + sizeof(int), SEEK_SET);
-    fread(&readHeadCur,sizeof(int),1,fileHashTable);
-    fread(&readTailCur,sizeof(int),1,fileHashTable);
-    int j = 0;
+    fseek(fileHashTable, (sourceId-1)*2*sizeof(int) + sizeof(int), SEEK_SET);
+    int r = fread(&readHeadCur,sizeof(int),1,fileHashTable);
+    if(r == 0){
+        return -1;
+    }
+
+    Travel* travel = createTravel();
+
     do{
         fseek(fileLinkedList,readHeadCur+sizeof(int),SEEK_SET);
-        int readDstId;
-        fread(&readDstId,sizeof(int),1,fileLinkedList);
-        int readHod;
-        fread(&readHod,sizeof(int),1,fileLinkedList);
-        if(readDstId == dstId && readHod == hod){
-            double readMean_time;
-            fread(&readMean_time,sizeof(double),1,fileLinkedList);
-            return readMean_time;
+        fread(&travel->dstid,sizeof(int),1,fileLinkedList);
+        fread(&travel->hod,sizeof(int),1,fileLinkedList);
+        if(travel->dstid == dstId && travel->hod == hod){
+            fread(&travel->mean_travel_time,sizeof(double),1,fileLinkedList);
+            return travel->mean_travel_time;
         }else{
-            fseek(fileLinkedList, 4*sizeof(double),SEEK_CUR);
+            fseek(fileLinkedList, sizeof(double),SEEK_CUR);
             fread(&readHeadCur,sizeof(int),1,fileLinkedList);
         }
     }while(readHeadCur!=-1);
+    
+    free(travel);
     printf("NA");
     return -1.0;
 }
+
 #endif

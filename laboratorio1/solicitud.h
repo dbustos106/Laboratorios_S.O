@@ -32,7 +32,7 @@ double hacerSolicitud(double sourceId, double dstId, double hod){
     *(ap + 1) = dstId;
     *(ap + 2) = hod;
     while(*(ap + 3) == 0){
-        usleep(500000);
+        usleep(50000);
     }
     double mean_time = *(ap + 3);
 

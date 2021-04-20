@@ -28,12 +28,11 @@ void insertHash(FILE* fileHashTable, FILE* fileLinkedLists, HashTable* hashTable
     writeTravel(fileLinkedLists, travel, -1);
 
     if(hashTable->arreglo[travel->sourceid-1].headCur == -1){
-        fseek(fileHashTable, 3*sizeof(int)*(travel->sourceid-1), SEEK_SET);
+        fseek(fileHashTable, 2*sizeof(int)*(travel->sourceid-1), SEEK_SET);
 
         createList(&hashTable->arreglo[travel->sourceid-1], curLinkedList, curLinkedList);
 
         fwrite(&travel->sourceid,sizeof(int),1,fileHashTable);
-        fwrite(&curLinkedList,sizeof(int),1,fileHashTable);
         fwrite(&curLinkedList,sizeof(int),1,fileHashTable);
         
     }else{
@@ -41,12 +40,10 @@ void insertHash(FILE* fileHashTable, FILE* fileLinkedLists, HashTable* hashTable
         int posHashTable = 3*sizeof(int)*(travel->sourceid-1);
 
         //Cambiar el nextCur
-        fseek(fileLinkedLists, hashTable->arreglo[travel->sourceid-1].tailCur + 3*sizeof(int) + 4*sizeof(double), SEEK_SET);
+        fseek(fileLinkedLists, hashTable->arreglo[travel->sourceid-1].tailCur + 3*sizeof(int) + sizeof(double), SEEK_SET);
         fwrite(&curLinkedList,sizeof(int),1,fileLinkedLists);
         
         //Cambiar la cola de la lista enlazada
-        fseek(fileHashTable, posHashTable + 2*sizeof(int), SEEK_SET);
-        fwrite(&curLinkedList,sizeof(int),1,fileHashTable);
         hashTable->arreglo[travel->sourceid-1].tailCur = curLinkedList;
     }
 }

@@ -3,15 +3,13 @@
 
 #include<stdio.h>
 #include<stdlib.h>
+#include<stdbool.h>
 
 typedef struct Travel{
     int sourceid;
     int dstid;
     int hod;
     double mean_travel_time;
-    double standard_deviation_travel_time;
-    double geometric_mean_travel_time;
-    double geometric_standard_deviation_travel_time;
 }Travel;
 
 Travel* createTravel(){
@@ -23,9 +21,9 @@ Travel* createTravel(){
     return travel;
 }
 
-bool read(Travel* travel, FILE* file){
+bool readTravel(Travel* travel, FILE* file){
     bool lectura = true;
-    char* comas = (char*) malloc(sizeof(char));
+    char* comas = (char*) malloc(30*sizeof(char));
 
     if(fscanf(file, "%d%c", &travel->sourceid, comas) == EOF){
         lectura = false;
@@ -39,15 +37,7 @@ bool read(Travel* travel, FILE* file){
     if(fscanf(file, "%lf%c", &travel->mean_travel_time, comas) == EOF){
         lectura = false;
     }
-    if(fscanf(file, "%lf%c", &travel->standard_deviation_travel_time, comas) == EOF){
-        lectura = false;
-    }
-    if(fscanf(file, "%lf%c", &travel->geometric_mean_travel_time, comas) == EOF){
-        lectura = false;
-    }
-    if(fscanf(file, "%lf%c", &travel->geometric_standard_deviation_travel_time, comas) == EOF){
-        lectura = false;
-    }
+    fscanf(file, "%[^\n]", comas);
     free(comas);
     return lectura;
 } 
@@ -57,9 +47,6 @@ void writeTravel(FILE* fileLinkedLists, Travel* travel, int nextCur){
     fwrite(&travel->dstid,sizeof(int),1,fileLinkedLists);
     fwrite(&travel->hod,sizeof(int),1,fileLinkedLists);
     fwrite(&travel->mean_travel_time,sizeof(double),1,fileLinkedLists);
-    fwrite(&travel->standard_deviation_travel_time,sizeof(double),1,fileLinkedLists);
-    fwrite(&travel->geometric_mean_travel_time,sizeof(double),1,fileLinkedLists);
-    fwrite(&travel->geometric_standard_deviation_travel_time,sizeof(double),1,fileLinkedLists);
     fwrite(&nextCur,sizeof(int),1,fileLinkedLists);
 }
 

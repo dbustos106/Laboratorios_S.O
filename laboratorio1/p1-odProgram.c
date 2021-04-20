@@ -38,21 +38,21 @@ int main(){
                 printf("Búsqueda de tiempo de viaje medio iniciada \n");
 	            
                 struct timespec begin, end; 
+                
                 clock_gettime(CLOCK_REALTIME, &begin);
-
                 double mean_time = hacerSolicitud((double) sourceid, (double) dstid, (double) hod);
+                
                 if(mean_time == -1){
                     printf("NA\n");
                 }else{
                     printf("Media: %f\n", mean_time);
                 }
-
                 clock_gettime(CLOCK_REALTIME, &end);
 
                 long seconds = end.tv_sec - begin.tv_sec;
                 long nanoseconds = end.tv_nsec - begin.tv_nsec;
                 double elapsed = seconds + nanoseconds*1e-9;
-                printf("Tiempo: %f\n", elapsed);
+                printf("Tiempo: %f segundos\n", elapsed);
             break;
 
             case 5: 
