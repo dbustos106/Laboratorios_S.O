@@ -17,7 +17,7 @@ int main(){
         printf("5) Salir \n\n");
         printf("Ingrese la opción: ");
         scanf("%d", &opcion);
-
+        
         switch(opcion){
             case 1:
                 printf("Ingrese el ID del origen: ");

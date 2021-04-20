@@ -1,4 +1,4 @@
-.DEFAULT_GOAL := correrPrograma, correrServer
+correrPrograma, correrServer
 correrPrograma:
 	gcc servidor.c -o servidor
 	./servidor

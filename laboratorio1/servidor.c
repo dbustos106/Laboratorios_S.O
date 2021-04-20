@@ -38,5 +38,6 @@ int main(){
     }
 
     shmctl(shmId, IPC_RMID, 0);
+    
     return 0;
 }
