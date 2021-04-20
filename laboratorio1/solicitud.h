@@ -8,7 +8,7 @@
 #include <sys/shm.h>
 #include <sys/types.h>
 
-double hacerSolicitud(double sourceId, double dstId){
+double hacerSolicitud(double sourceId, double dstId, double hod){
     pid_t pid;
     key_t key = 1234;
     int shmId;
@@ -30,10 +30,11 @@ double hacerSolicitud(double sourceId, double dstId){
 
     *ap = sourceId;
     *(ap + 1) = dstId;
-    while(*(ap + 2) == 0){
+    *(ap + 2) = hod;
+    while(*(ap + 3) == 0){
         usleep(500000);
     }
-    double mean_time = *(ap + 2);
+    double mean_time = *(ap + 3);
 
 
 

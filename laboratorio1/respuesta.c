@@ -4,6 +4,7 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <sys/types.h>
+#include "busqueda.h"
 
 int main(){
     pid_t pid;
@@ -24,10 +25,10 @@ int main(){
     }
 
 
-    while(*ap == 0 && *(ap + 1) == 0){
+    while(*ap == 0 && *(ap + 1) == 0 && *(ap +2) == 0){
         usleep(500000);
     }
-    *(ap + 2) = *ap + *(ap + 1);
+    *(ap + 3) = busqueda((int)*(ap),(int)*(ap+1),(int)*(ap+2));
 
 
 

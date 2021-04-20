@@ -40,7 +40,7 @@ int main(){
                 struct timespec begin, end; 
                 clock_gettime(CLOCK_REALTIME, &begin);
 
-                double mean_time = hacerSolicitud((double) sourceid, (double) dstid);
+                double mean_time = hacerSolicitud((double) sourceid, (double) dstid, (double) hod);
                 printf("Media: %f\n", mean_time);
 
                 clock_gettime(CLOCK_REALTIME, &end);
