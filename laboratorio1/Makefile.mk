@@ -1,4 +1,4 @@
-correrPrograma, correrServer
+all: correrPrograma correrServer
 correrPrograma:
 	gcc servidor.c -o servidor
 	./servidor
