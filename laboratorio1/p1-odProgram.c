@@ -41,7 +41,7 @@ int main(){
                 
                 clock_gettime(CLOCK_REALTIME, &begin);
                 double mean_time = hacerSolicitud((double) sourceid, (double) dstid, (double) hod);
-                
+
                 if(mean_time == -1){
                     printf("NA\n");
                 }else{
@@ -56,7 +56,7 @@ int main(){
             break;
 
             case 5: 
-                exit(-1);
+                return 0;
             break;
 
             default:
