@@ -38,8 +38,8 @@ int main(){
                 printf("Búsqueda de tiempo de viaje medio iniciada \n");
 	            
                 struct timespec begin, end; 
-                
                 clock_gettime(CLOCK_REALTIME, &begin);
+
                 double mean_time = hacerSolicitud((double) sourceid, (double) dstid, (double) hod);
 
                 if(mean_time == -1){
@@ -61,6 +61,7 @@ int main(){
 
             default:
                 printf("Opción incorrecta, seleccione una opción válida \n");
+            break;
 
         }
     }while(opcion != 5);

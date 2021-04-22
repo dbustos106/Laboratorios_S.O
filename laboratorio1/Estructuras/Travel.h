@@ -12,6 +12,9 @@ typedef struct Travel{
     double mean_travel_time;
 }Travel;
 
+/*
+Reservar un espacio de memoria para un registro de tipo Travel
+*/
 Travel* createTravel(){
     Travel *travel = (Travel*)malloc(sizeof(Travel));
     if(travel == NULL){
@@ -21,6 +24,9 @@ Travel* createTravel(){
     return travel;
 }
 
+/*
+Leer un regitro Travel del archivo de lectura
+*/
 bool readTravel(Travel* travel, FILE* file){
     bool lectura = true;
     char* comas = (char*) malloc(30*sizeof(char));
@@ -42,6 +48,9 @@ bool readTravel(Travel* travel, FILE* file){
     return lectura;
 } 
 
+/*
+Escribir un registro travel en el arhivo de listas enlazadas
+*/
 void writeTravel(FILE* fileLinkedLists, Travel* travel, int nextCur){
     fwrite(&travel->sourceid,sizeof(int),1,fileLinkedLists);
     fwrite(&travel->dstid,sizeof(int),1,fileLinkedLists);

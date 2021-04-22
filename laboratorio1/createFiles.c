@@ -3,6 +3,9 @@
 #include<stdbool.h>
 #include "./Estructuras/HashTable.h"
 
+/*
+Leer encabezado de la tabla
+*/
 void leerEncabezado(FILE* file){
     char* file_content = (char*) malloc(135*sizeof(char));
     if(file_content == NULL){
@@ -13,6 +16,9 @@ void leerEncabezado(FILE* file){
     free(file_content);
 }
 
+/*
+Crear apuntadores a los archivos binarios
+*/
 FILE* openFile(FILE* file, char* dir, char* modo){
     file=fopen(dir, modo);
     if(file==NULL){
@@ -44,10 +50,12 @@ int main(){
     //Leer cada uno de los datos e insertarlos en la hashTable
     while(!feof(file)){
         Travel* travel = createTravel();
+        //Leer el siguiente registro
         bool lectura = readTravel(travel, file);
         if(lectura == false){
             break;
         }
+        //Insertar el registro en la estructura ashTable
         insertHash(fileHashTable, fileLinkedLists, hashTable, travel);
         free(travel);
     }

@@ -22,8 +22,10 @@ double busqueda(int sourceId, int dstId, int hod){
     fileLinkedList = openFile(fileLinkedList, "./Archivos/fileLinkedLists.dat", "rb");
 
     int readHeadCur;
+    //Recuperar de fileHashTable el headCur que apunta a la cabeza de la lista enlazada
     fseek(fileHashTable, (sourceId-1)*2*sizeof(int) + sizeof(int), SEEK_SET);
     int r = fread(&readHeadCur,sizeof(int),1,fileHashTable);
+    //Validar error
     if(r == 0){
         return -1;
     }
@@ -31,13 +33,17 @@ double busqueda(int sourceId, int dstId, int hod){
     Travel* travel = createTravel();
 
     do{
+        //Leer el destino y la hora del registro leido actualmente
         fseek(fileLinkedList,readHeadCur+sizeof(int),SEEK_SET);
         fread(&travel->dstid,sizeof(int),1,fileLinkedList);
         fread(&travel->hod,sizeof(int),1,fileLinkedList);
         if(travel->dstid == dstId && travel->hod == hod){
+            //Si los datos de destino y hora coinsiden, 
+            //se obtiene el tiempo medio y se retorna el dato
             fread(&travel->mean_travel_time,sizeof(double),1,fileLinkedList);
             return travel->mean_travel_time;
         }else{
+            //Si no, se obtiene el apuntador nextCur al siguiente registro de la lista enlazada
             fseek(fileLinkedList, sizeof(double),SEEK_CUR);
             fread(&readHeadCur,sizeof(int),1,fileLinkedList);
         }
