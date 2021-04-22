@@ -26,7 +26,7 @@ int main(){
         perror("Error en shamt");
         exit(-1);
     }
-
+ 
 
     //Dormir el proceso mientras el cliente hace la solicitud
     while(*ap == 0 && *(ap + 1) == 0 && *(ap + 2) == 0){
