@@ -56,6 +56,7 @@ int main(){
             break;
 
             case 5: 
+                cerrarServer();
                 return 0;
             break;
 

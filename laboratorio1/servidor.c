@@ -27,14 +27,18 @@ int main(){
         exit(-1);
     }
  
-
-    //Dormir el proceso mientras el cliente hace la solicitud
-    while(*ap == 0 && *(ap + 1) == 0 && *(ap + 2) == 0){
-        usleep(50000);
+    while(*(ap + 4) != -1){
+        //Dormir el proceso mientras el cliente hace la solicitud
+        while(*ap == 0 && *(ap + 1) == 0 && *(ap + 2) == 0){
+            usleep(50000);
+        }
+        //Realizar la busqueda del dato
+        *(ap + 3) = busqueda((int)*(ap),(int)*(ap + 1),(int)*(ap + 2));
+        //Reiniciar los valores
+        *ap = 0;
+        *(ap + 1) = 0;
+        *(ap + 2) = 0;
     }
-    //Realizar la busqueda del dato
-    *(ap + 3) = busqueda((int)*(ap),(int)*(ap + 1),(int)*(ap + 2));
-
 
     //Desvincular el apuntador ap al espacio de memoria compartida
     r = shmdt(ap);
@@ -42,7 +46,9 @@ int main(){
         perror("Error en shmdt");
         exit(-1);
     }
+
     //Eliminamos el espacio de memoria compartida
-    shmctl(shmId, IPC_RMID, 0);    
+    shmctl(shmId, IPC_RMID, 0);
+
     return 0;
 }
