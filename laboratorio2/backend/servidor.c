@@ -9,19 +9,32 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include <pthread.h>
+#include "./Estructuras/Queue.h"
  
 #define PORT 3535
 #define BACKLOG 32
+#define THREAD_SIZE 32
+
+pthread_t hilos[THREAD_SIZE];
+pthread_mutex_t mutex;
+
 
 FILE* openFile(FILE* file, char* dir, char* modo);
 int check(int desc, char* message);
-void * handle_conection(void *pclient);
-
+void* handle_conection(void* pclient);
+void* thread_function(void* arg);
 
 int main(){
     int serverfd, clientfd, r, opt = 1;
     struct sockaddr_in server, client;
     socklen_t tamano = sizeof(struct sockaddr_in);
+
+    // Se crean las variables de control para la sección crítica
+    pthread_mutex_init(&mutex, NULL);
+
+    for(int i = 0; i < THREAD_SIZE; i++){
+        pthread_create(&hilos[i], NULL,(void *) thread_function, NULL);
+    }
 
     check(serverfd = socket(AF_INET, SOCK_STREAM, 0), "\n-->Error en socket():");
     
@@ -37,8 +50,6 @@ int main(){
     
     check(r = listen(serverfd, BACKLOG), "\n-->Error en Listen(): ");
     
-    int *pclient = malloc(sizeof(int));
-
     while(true){
         printf("Waiting for connections...\n");
         check(clientfd = accept(serverfd, (struct sockaddr *)&client, &tamano), 
@@ -46,25 +57,34 @@ int main(){
 
         printf("Connected!\n");
 
-        pthread_t t;
-        
-        *pclient = clientfd;
-        pthread_create(&t, NULL, (void *) handle_conection, pclient);
-        if(r != 0){
-            perror("\n-->pthread_create error: ");
-            exit(-1);
-        }
+        char* dirIp = inet_ntoa(client.sin_addr);
+        printf("Se obtuvo una conexion desde %s\n", dirIp);  
+        fflush(stdout);
 
-        printf("Se obtuvo una conexion desde %s\n", inet_ntoa(client.sin_addr) );  fflush(stdout);
-
-        struct in_addr clientIP;
-        clientIP = client.sin_addr;
-        char ipStr[INET_ADDRSTRLEN];
-        printf("IP Origen: %s\n", inet_ntop(AF_INET, &clientIP, ipStr, INET_ADDRSTRLEN));
+        ClientEstruct* clientEstruct = malloc(sizeof(ClientEstruct));
+        clientEstruct->clientfd = clientfd;
+        clientEstruct->clientIP = dirIp;
+        pthread_mutex_lock(&mutex);
+        enqueue(clientEstruct);
+        pthread_mutex_unlock(&mutex);
     }
+
+    // Se destruyen las variables de control de la sección crítica
+    pthread_mutex_destroy(&mutex);
 
     close(serverfd);
     return 0;
+}
+
+void* thread_function(void * arg){
+    while(true){
+        pthread_mutex_lock(&mutex);
+        ClientEstruct* clientfd = dequeue();
+        pthread_mutex_unlock(&mutex);
+        if(clientfd != NULL){
+            handle_conection(clientfd);
+        }
+    }
 }
 
 FILE* openFile(FILE* file, char* dir, char* modo){
@@ -85,8 +105,9 @@ int check(int desc, char* message){
     return desc;
 }
 
-void * handle_conection(void *pclient){
-    int clientfd = *((int *) pclient);
+void* handle_conection(void *pclient){
+    ClientEstruct clientf = *((ClientEstruct *) pclient);
+    int clientfd = clientf.clientfd;
     free(pclient);
     int r, tam = 0;
     char buffer[60];
