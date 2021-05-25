@@ -11,7 +11,7 @@
 #include <unistd.h>
 #include <string.h>
  
-#define PORT 3536
+#define PORT 3535
 
 int check(int desc, char* message){
     if(desc < 0){

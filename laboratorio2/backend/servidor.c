@@ -10,7 +10,7 @@
 #include <stdbool.h>
 #include <pthread.h>
  
-#define PORT 3536
+#define PORT 3535
 #define BACKLOG 32
 
 FILE* openFile(FILE* file, char* dir, char* modo);
@@ -21,7 +21,7 @@ void * handle_conection(void *pclient);
 int main(){
     int serverfd, clientfd, r, opt = 1;
     struct sockaddr_in server, client;
-    socklen_t tamano;
+    socklen_t tamano = sizeof(struct sockaddr_in);
 
     check(serverfd = socket(AF_INET, SOCK_STREAM, 0), "\n-->Error en socket():");
     
@@ -37,6 +37,8 @@ int main(){
     
     check(r = listen(serverfd, BACKLOG), "\n-->Error en Listen(): ");
     
+    int *pclient = malloc(sizeof(int));
+
     while(true){
         printf("Waiting for connections...\n");
         check(clientfd = accept(serverfd, (struct sockaddr *)&client, &tamano), 
@@ -45,7 +47,7 @@ int main(){
         printf("Connected!\n");
 
         pthread_t t;
-        int *pclient = malloc(sizeof(int));
+        
         *pclient = clientfd;
         pthread_create(&t, NULL, (void *) handle_conection, pclient);
         if(r != 0){
@@ -53,10 +55,12 @@ int main(){
             exit(-1);
         }
 
+        printf("Se obtuvo una conexion desde %s\n", inet_ntoa(client.sin_addr) );  fflush(stdout);
+
         struct in_addr clientIP;
         clientIP = client.sin_addr;
         char ipStr[INET_ADDRSTRLEN];
-        printf("IP Origen: %s\n",inet_ntop(AF_INET, &clientIP, ipStr, INET_ADDRSTRLEN));
+        printf("IP Origen: %s\n", inet_ntop(AF_INET, &clientIP, ipStr, INET_ADDRSTRLEN));
     }
 
     close(serverfd);
@@ -82,7 +86,6 @@ int check(int desc, char* message){
 }
 
 void * handle_conection(void *pclient){
-
     int clientfd = *((int *) pclient);
     free(pclient);
     int r, tam = 0;
@@ -100,11 +103,17 @@ void * handle_conection(void *pclient){
     printf("Request: %s\n", buffer);
     fflush(stdout);
 
+    // Intepretar mensaje
+
     int respuesta = 2;
     check(r = send(clientfd, &respuesta, 4, 0), "Error en el send");
 
     FILE *log;
     log = openFile(log, "./Archivos/log.txt", "w+");
+
+    // Seccion critica
+        // Escritura de log
+    // Fin seccion critica
 
     close(clientfd);
     printf("Closing connection\n");
