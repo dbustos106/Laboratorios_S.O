@@ -11,7 +11,7 @@
 #include <unistd.h>
 #include <string.h>
  
-#define PORT 3535
+#define PORT 3536
 
 int check(int desc, char* message){
     if(desc < 0){
@@ -21,10 +21,9 @@ int check(int desc, char* message){
     return desc;
 }
 
-int enviarDatos(int clientfd, char *campo,int num){
-    int r;
+int enviarDatos(int clientfd, char *campo, int num){
+    int r, respuesta;
     char *datos = malloc(60*sizeof(char));
-    char respuesta[32];
     char str[10];
 
     sprintf(str, "%d", num);
@@ -38,26 +37,21 @@ int enviarDatos(int clientfd, char *campo,int num){
     free(datos);
 
     // Se recibe la respuesta del servidor
-    r = recv(clientfd, respuesta, 32, 0);
-    respuesta[r] = 0;
-    printf("Respuesta: %s\n", respuesta);
+    r = recv(clientfd, &respuesta, 4, 0);
+    printf("Respuesta: %d\n", respuesta);
 
-    return strtol(respuesta, NULL, 10);
+    return respuesta;
 }
 
 double solicitarBusqueda(int clientfd){
-    printf("sold\n");
     int r;
-    double mean_time = 0;
-    char respuesta[32];
+    double mean_time;
 
-    printf("llego aqui");
     check(r = send(clientfd, "{metodo:GET, data:mean_time}", 60, 0), "\n-->Error en send(): ");
 
     // Se recibe la respuesta del servidor
-    r = recv(clientfd, respuesta, 32, 0);
-    respuesta[r] = 0;
-    printf("Respuesta: %s\n", respuesta);
+    r = recv(clientfd, &mean_time, 32, 0);
+    printf("Respuesta: %f\n", mean_time);
 
     return mean_time;
 }

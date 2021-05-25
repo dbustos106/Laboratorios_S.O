@@ -10,77 +10,19 @@
 #include <stdbool.h>
 #include <pthread.h>
  
-#define PORT 3535
+#define PORT 3536
 #define BACKLOG 32
 
-/*
-#include <netinet/in.h>
- 
-struct sockaddr_in {
-    short            sin_family;   // e.g. AF_INET
-    unsigned short   sin_port;     // e.g. htons(3490)
-    struct in_addr   sin_addr;     // see struct in_addr, below
-    char             sin_zero[8];  // zero this if you want to
-};
- 
-struct in_addr {
-    unsigned long s_addr;  // load with inet_aton()
-};
-*/
+FILE* openFile(FILE* file, char* dir, char* modo);
+int check(int desc, char* message);
+void * handle_conection(void *pclient);
 
-FILE* openFile(FILE* file, char* dir, char* modo){
-    file=fopen(dir, modo);
-    if(file==NULL){
-        printf("Error leyendo archivo\n");
-    }else{
-        printf("Archivo leido con exito\n");
-    }
-    return file;
-}
-
-int check(int desc, char* message){
-    if(desc < 0){
-        perror(message);
-        exit(-1);
-    }
-    return desc;
-}
-
-void * handle_conection(void *pclient){
-    int clientfd = *((int *) pclient);
-    free(pclient);
-    int r, tam = 0;
-    char buffer[60];
-
-    while((r = recv(clientfd, buffer, sizeof(buffer) - tam - 1, 0)) > 0){
-        tam = tam + r;
-        if(tam > 32-1 || buffer[tam-1] == '\n'){
-            break;
-        } 
-    }
-    check(r, "\n-->Error en recv(): ");
-    buffer[tam -1] = 0;
-    
-    printf("Request: %s\n", buffer);
-    fflush(stdout);
-
-    check(r = send(clientfd, "Hola soy el servidor\n", 21, 0), "Error en el send");
-
-    FILE *log;
-    log = openFile(log, "./Archivos/log.txt", "w+");
-
-    close(clientfd);
-    printf("Closing connection\n");
-
-    return NULL;
-}
 
 int main(){
     int serverfd, clientfd, r, opt = 1;
     struct sockaddr_in server, client;
     socklen_t tamano;
 
- 
     check(serverfd = socket(AF_INET, SOCK_STREAM, 0), "\n-->Error en socket():");
     
     server.sin_family = AF_INET;
@@ -110,9 +52,62 @@ int main(){
             perror("\n-->pthread_create error: ");
             exit(-1);
         }
+
+        struct in_addr clientIP;
+        clientIP = client.sin_addr;
+        char ipStr[INET_ADDRSTRLEN];
+        printf("IP Origen: %s\n",inet_ntop(AF_INET, &clientIP, ipStr, INET_ADDRSTRLEN));
     }
 
     close(serverfd);
-
     return 0;
+}
+
+FILE* openFile(FILE* file, char* dir, char* modo){
+    file=fopen(dir, modo);
+    if(file==NULL){
+        printf("Error leyendo archivo\n");
+    }else{
+        printf("Archivo leido con exito\n");
+    }
+    return file;
+}
+
+int check(int desc, char* message){
+    if(desc < 0){
+        perror(message);
+        exit(-1);
+    }
+    return desc;
+}
+
+void * handle_conection(void *pclient){
+
+    int clientfd = *((int *) pclient);
+    free(pclient);
+    int r, tam = 0;
+    char buffer[60];
+
+    while((r = recv(clientfd, buffer, sizeof(buffer)-tam-1, 0)) > 0){
+        tam = tam + r;
+        if(tam > 32-1 || buffer[tam-1] == '\n'){
+            break;
+        } 
+    }
+    check(r, "\n-->Error en recv(): ");
+    buffer[tam -1] = 0;
+    
+    printf("Request: %s\n", buffer);
+    fflush(stdout);
+
+    int respuesta = 2;
+    check(r = send(clientfd, &respuesta, 4, 0), "Error en el send");
+
+    FILE *log;
+    log = openFile(log, "./Archivos/log.txt", "w+");
+
+    close(clientfd);
+    printf("Closing connection\n");
+
+    return NULL;
 }

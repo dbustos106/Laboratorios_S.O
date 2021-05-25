@@ -23,13 +23,13 @@ int main(int argc, char *argv[]){
             case 1:
                 printf("Ingrese el ID del origen: ");
                 scanf("%d", &sourceid);
-                enviarDatos(clientfd, "sourceid",sourceid);
+                enviarDatos(clientfd, "sourceid", sourceid);
             break;
 
             case 2:
                 printf("Ingrese el ID del destino: ");
                 scanf("%d", &dstid);
-                enviarDatos(clientfd, "dstid",dstid);
+                enviarDatos(clientfd, "dstid", dstid);
             break;
 
             case 3:
@@ -43,7 +43,7 @@ int main(int argc, char *argv[]){
 	            
                 struct timespec begin, end; 
                 clock_gettime(CLOCK_REALTIME, &begin);
-                printf("dddd\n");
+                
                 double mean_time = solicitarBusqueda(clientfd);
 
                 if(mean_time == -1){
