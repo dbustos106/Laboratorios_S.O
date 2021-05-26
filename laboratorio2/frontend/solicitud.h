@@ -27,11 +27,10 @@ int enviarDatos(int clientfd, char *campo, int num){
     char str[10];
 
     sprintf(str, "%d", num);
-    strcat(datos, "{metodo:PUT, payload:{");
+    strcat(datos, "metodo:PUT, ");
     strcat(datos, campo);
     strcat(datos, ":");
     strcat(datos, str);
-    strcat(datos, "}}");
 
     check(r = send(clientfd, datos, 60, 0), "\n-->Error en send(): ");
     free(datos);
@@ -47,7 +46,7 @@ double solicitarBusqueda(int clientfd){
     int r;
     double mean_time;
 
-    check(r = send(clientfd, "{metodo:GET, data:mean_time}", 60, 0), "\n-->Error en send(): ");
+    check(r = send(clientfd, "metodo:GET, data:mean_time", 60, 0), "\n-->Error en send(): ");
 
     // Se recibe la respuesta del servidor
     r = recv(clientfd, &mean_time, 32, 0);

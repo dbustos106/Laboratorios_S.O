@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include <pthread.h>
+#include <string.h>
 #include "./Estructuras/Queue.h"
  
 #define PORT 3535
@@ -106,8 +107,8 @@ int check(int desc, char* message){
 }
 
 void* handle_conection(void *pclient){
-    ClientEstruct clientf = *((ClientEstruct *) pclient);
-    int clientfd = clientf.clientfd;
+    ClientEstruct clientEstruct = *((ClientEstruct *) pclient);
+    int clientfd = clientEstruct.clientfd;
     free(pclient);
     int r, tam = 0;
     char buffer[60];
@@ -124,7 +125,36 @@ void* handle_conection(void *pclient){
     printf("Request: %s\n", buffer);
     fflush(stdout);
 
+    char* keyWord = "PUT";
+    char* keyWord2 = "GET";
+    char* numero;
+
+    char* campo;
+
     // Intepretar mensaje
+    if((numero = strstr(buffer, keyWord)) != NULL) {
+        printf("Method is put \n");
+        if(strstr(buffer, "sourceid") != NULL){
+            char* campo = "sourceid";
+            numero = numero + 14;
+            printf("NUM: %d\n", atoi(numero));
+        }else{
+            if(strstr(buffer, "dstid") != NULL){
+                char* campo = "dstid";
+                numero = numero + 11;
+                printf("NUM: %d\n", atoi(numero));
+            }else{
+                char* campo = "hod";
+                numero = numero + 9;
+                printf("NUM: %d\n", atoi(numero));
+            }
+        }
+        
+    }else if(strstr(buffer, keyWord2) != NULL){
+        printf("Method is get \n");
+    }
+
+    
 
     int respuesta = 2;
     check(r = send(clientfd, &respuesta, 4, 0), "Error en el send");
