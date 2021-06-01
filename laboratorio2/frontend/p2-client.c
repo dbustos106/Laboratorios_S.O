@@ -57,21 +57,21 @@ int main(int argc, char *argv[]){
                 
                 double mean_time = solicitarBusqueda(clientfd);
                 if(mean_time == -1){
-                    printf("Respuesta: NA");
+                    printf("Respuesta: NA\n");
                 }else{
-                    printf("Respuesta: %f.", mean_time);
+                    printf("Respuesta: %f.\n", mean_time);
                 }
 
                 // Capturar el tiempo de fin
                 clock_gettime(CLOCK_REALTIME, &end);
-                // comentario de prueba
+
                 long seconds = end.tv_sec - begin.tv_sec;
                 long nanoseconds = end.tv_nsec - begin.tv_nsec;
                 double elapsed = seconds + nanoseconds*1e-9;
                 printf("Tiempo de cómputo: %f segundos\n", elapsed);
 
                 char gf;
-                printf("Ingrese cualquier tecla para continuar");
+                printf("Ingrese cualquier tecla para continuar:");
                 scanf("%s", &gf);
                 printf("/n");
                 

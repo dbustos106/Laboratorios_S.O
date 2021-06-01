@@ -123,6 +123,7 @@ void* handle_conection(void *pclient){
             free(numero);
 
         }else if(strcmp(metodo, "GET") == 0){
+            printf("1:%d\n2:%d\n3:%d\n", sourceId, dstId,hod);
             double mean_time = busqueda(sourceId, dstId, hod);
             verificar(r = send(clientfd, &mean_time, 8, 0), "Error en el send");
             
