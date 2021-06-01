@@ -21,6 +21,7 @@ pthread_mutex_t mutex;
 ClientEstruct* clientes;
 
 char* strasign(char* chr, int tam, char* buffer, int num, char delimiter);
+void writeLog(char* dirIp, char* solicitud, char* valor);
 int verificar(int desc, char* message);
 void* handle_conection(void* pclient);
 
@@ -72,9 +73,8 @@ int main(){
 void* handle_conection(void *pclient){
     ClientEstruct clientEstruct = *((ClientEstruct *) pclient);
     int clientfd = clientEstruct.clientfd;
+    char* clientIp = clientEstruct.clientIP;
     int sourceId = 0, dstId = 0, hod = 0;
-    char* dirIp = "][Cliente:";
-    FILE *log;
 
     free(pclient);
 
@@ -119,14 +119,32 @@ void* handle_conection(void *pclient){
             int respuesta = 200;
             verificar(r = send(clientfd, &respuesta, 4, 0), "Error en el send");
 
+            // Bloqueo la sección crítica
+            pthread_mutex_lock(&mutex);
+
+            char* dirIp = malloc(8*sizeof(char));
+            sprintf(dirIp, "%s", "0.0.0.0");
+            writeLog(dirIp, campo, numero);
+
+            // Desbloqueo la sección crítica
+            pthread_mutex_unlock(&mutex);     
+
             free(campo);
-            free(numero);
+            free(numero);        
 
         }else if(strcmp(metodo, "GET") == 0){
-            printf("1:%d\n2:%d\n3:%d\n", sourceId, dstId,hod);
             double mean_time = busqueda(sourceId, dstId, hod);
             verificar(r = send(clientfd, &mean_time, 8, 0), "Error en el send");
             
+            char* solicitud = malloc(8*sizeof(char));
+            sprintf(solicitud, "%s", "Busqueda");
+            char* resultado = malloc(8*sizeof(char));
+            sprintf(resultado, "%f", mean_time);
+
+
+            char* dirIp = malloc(8*sizeof(char));
+            sprintf(dirIp, "%s", "0.0.0.0");
+            writeLog(dirIp, solicitud, resultado);
         }else{
             break;
         }
@@ -134,19 +152,6 @@ void* handle_conection(void *pclient){
         printf("sourceid: [%d]\n", sourceId);
         printf("dstid: [%d]\n", dstId);
         printf("hod: [%d]\n", hod);
-
-        // Escritura del archivo log
-        struct timespec currentTime; 
-        clock_gettime(CLOCK_REALTIME, &currentTime);
-
-        pthread_mutex_lock(&mutex);
-
-        log = openFile(log, "./Archivos/log.txt", "a");
-        // ESCRITURAAAAA
-        //dd
-        fclose(log);
-
-        pthread_mutex_unlock(&mutex); 
 
         free(buffer);
         free(metodo);
@@ -156,6 +161,28 @@ void* handle_conection(void *pclient){
     printf("Closing connection\n");
 
     return NULL;
+}
+
+void writeLog(char* dirIp, char* solicitud, char* valor){
+    time_t tiempo = time(0);
+    struct tm *tlocal = localtime(&tiempo);
+    char* fecha = malloc(128*sizeof(char));
+    strftime(fecha,128,"%y/%m/%d %H:%M:%S",tlocal);
+
+    FILE *log;
+    log = openFile(log, "./Archivos/log.txt", "a");
+    // Escritura del archivo log
+    fprintf(log, "%s", "[Fecha:");
+    fprintf(log, "%s", fecha);
+    fprintf(log, "%s", "] [Cliente:");
+    fprintf(log, "%s", dirIp);
+    fprintf(log, "%s", "] [");
+    fprintf(log, "%s", solicitud);
+    fprintf(log, "%s", "-");
+    fprintf(log, "%s", valor);
+    fprintf(log, "%s", "]\n");
+
+    fclose(log);
 }
 
 char* strasign(char* chr, int tam, char* buffer, int num, char delimiter){

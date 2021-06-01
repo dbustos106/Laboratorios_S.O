@@ -73,7 +73,7 @@ int main(int argc, char *argv[]){
                 char gf;
                 printf("Ingrese cualquier tecla para continuar:");
                 scanf("%s", &gf);
-                printf("/n");
+                printf("\n");
                 
             break;
 
