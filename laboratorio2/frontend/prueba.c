@@ -8,4 +8,5 @@ int main(int argc, char *argv[]){
     int clientfd = hacerConexion(argv[1]);
     int sourceId = 32;
     enviarDatos(clientfd, "sourceid", sourceId);
+    close(clientfd);
 }

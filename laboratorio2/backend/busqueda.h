@@ -1,9 +1,9 @@
 #ifndef busqueda_h
 #define busqueda_h
 
-#include<stdio.h>
-#include<stdlib.h>
-#include"./Estructuras/Travel.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include "./Estructuras/Travel.h"
 
 FILE* openFile(FILE* file, char* dir, char* modo){
     file=fopen(dir, modo);

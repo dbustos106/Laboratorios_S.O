@@ -13,7 +13,7 @@
  
 #define PORT 3535
 
-int check(int desc, char* message){
+int verificar(int desc, char* message){
     if(desc < 0){
         perror(message);
         exit(-1);
@@ -23,22 +23,26 @@ int check(int desc, char* message){
 
 int enviarDatos(int clientfd, char *campo, int num){
     int r, respuesta;
-    char *datos = malloc(60*sizeof(char));
     char str[10];
-
     sprintf(str, "%d", num);
+
+    // Se concatena el mensaje
+    char *datos = malloc(60*sizeof(char));
     strcat(datos, "metodo:PUT, ");
     strcat(datos, campo);
     strcat(datos, ":");
     strcat(datos, str);
 
-    check(r = send(clientfd, datos, 60, 0), "\n-->Error en send(): ");
-    free(datos);
+    // Se envia mensaje al servidor
+    verificar(r = send(clientfd, datos, 60, 0), 
+        "\n-->Error en send(): ");
+
+    printf("Se envió el mensaje y se espera respuesta\n");
 
     // Se recibe la respuesta del servidor
     r = recv(clientfd, &respuesta, 4, 0);
-    printf("Respuesta: %d\n", respuesta);
-
+    printf("Respuesta: %d ", respuesta);
+    free(datos);
     return respuesta;
 }
 
@@ -46,13 +50,25 @@ double solicitarBusqueda(int clientfd){
     int r;
     double mean_time;
 
-    check(r = send(clientfd, "metodo:GET, data:mean_time", 60, 0), "\n-->Error en send(): ");
+    // Se envia mensaje al servidor
+    verificar(r = send(clientfd, "metodo:GET, data:mean_time", 60, 0), 
+        "\n-->Error en send(): ");
 
     // Se recibe la respuesta del servidor
-    r = recv(clientfd, &mean_time, 32, 0);
+    r = recv(clientfd, &mean_time, 8, 0);
     printf("Respuesta: %f\n", mean_time);
 
     return mean_time;
+}
+
+void cerrarServidor(int clientfd){
+    int r;
+    double mean_time;
+
+    // Se envia mensaje al servidor
+    verificar(r = send(clientfd, "metodo:close", 60, 0), 
+        "\n-->Error en send(): ");
+
 }
 
 int hacerConexion(char* dirIp){
@@ -61,21 +77,17 @@ int hacerConexion(char* dirIp){
     struct hostent *he;
     char buffer[32];
     
-    clientfd = socket(AF_INET, SOCK_STREAM, 0);
-    if(clientfd < 0){
-        perror("\n-->Error en socket():");
-        exit(-1);
-    }
+    verificar(clientfd = socket(AF_INET, SOCK_STREAM, 0), 
+        "\n-->Error en socket():");
 
     client.sin_family = AF_INET;
     client.sin_port = htons(PORT);
 
     inet_aton(dirIp, &client.sin_addr);
-    r = connect(clientfd, (struct sockaddr *)&client, (socklen_t)sizeof(struct sockaddr));
-    if(r < 0){
-        perror("\n-->Error en connect(): ");
-        exit(-1);
-    }
+
+    verificar(r = connect(clientfd, (struct sockaddr *)&client, (socklen_t)sizeof(struct sockaddr)), 
+        "\n-->Error en connect(): ");
+
     return clientfd;
 }
 

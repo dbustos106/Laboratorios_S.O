@@ -9,40 +9,7 @@ procesoBusqueda:
 	./prueba 127.0.0.1 &
 	./prueba 127.0.0.1 &
 	./prueba 127.0.0.1 &
-	./prueba 127.0.0.1 & 
 	./prueba 127.0.0.1 &
-	./prueba 127.0.0.1 &
-	./prueba 127.0.0.1 &
-	./prueba 127.0.0.1 &
-	./prueba 127.0.0.1 &
-	./prueba 127.0.0.1 &
-	./prueba 127.0.0.1 &
-	./prueba 127.0.0.1 &
-	./prueba 127.0.0.1 &
-	./prueba 127.0.0.1 &
-	./prueba 127.0.0.1 &
-	./prueba 127.0.0.1 &
-	./prueba 127.0.0.1 &
-	./prueba 127.0.0.1 &
-	./prueba 127.0.0.1 &
-	./prueba 127.0.0.1 &
-	./prueba 127.0.0.1 &
-	./prueba 127.0.0.1 &
-	./prueba 127.0.0.1 &
-	./prueba 127.0.0.1 &
-	./prueba 127.0.0.1 &
-	./prueba 127.0.0.1 &
-	./prueba 127.0.0.1 &
-	./prueba 127.0.0.1 &
-	./prueba 127.0.0.1 &
-	./prueba 127.0.0.1 &
-	./prueba 127.0.0.1 &
-	./prueba 127.0.0.1 &
-	./prueba 127.0.0.1 &
-	./prueba 127.0.0.1 &
-	./prueba 127.0.0.1 &
-	./prueba 127.0.0.1 &
-	./prueba 127.0.0.1 & 
 	./prueba 127.0.0.1 &
 	./prueba 127.0.0.1 &
 	./prueba 127.0.0.1 &
@@ -75,5 +42,6 @@ procesoBusqueda:
 	./prueba 127.0.0.1 &
 	./prueba 127.0.0.1 &
 	./prueba 127.0.0.1
+
 
 

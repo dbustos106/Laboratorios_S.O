@@ -4,13 +4,21 @@
 #include <time.h>
 #include "solicitud.h"
 
-int main(int argc, char *argv[]){  
+void validarRespuesta(int respuesta);
+
+int main(int argc, char *argv[]){ 
+
     int opcion = -1;
     int sourceid = -1;
     int dstid = -1;
     int hod = -1;
+
+    struct timespec begin, end; 
+    int clientfd = hacerConexion(argv[1]);
+    int respuesta;
+
     do{
-        int clientfd = hacerConexion(argv[1]);
+        printf("---- MENU DEL CLIENTE ----\n");
         printf("1) Ingresar origen \n");
         printf("2) Ingresar destino \n");
         printf("3) Ingresar hora \n");
@@ -23,25 +31,28 @@ int main(int argc, char *argv[]){
             case 1:
                 printf("Ingrese el ID del origen: ");
                 scanf("%d", &sourceid);
-                enviarDatos(clientfd, "sourceid", sourceid);
+                respuesta = enviarDatos(clientfd, "sourceid", sourceid);
+                validarRespuesta(respuesta);
             break;
 
             case 2:
                 printf("Ingrese el ID del destino: ");
                 scanf("%d", &dstid);
-                enviarDatos(clientfd, "dstid", dstid);
+                respuesta = enviarDatos(clientfd, "dstid", dstid);
+                validarRespuesta(respuesta);
             break;
 
             case 3:
                 printf("Ingrese la hora del día: ");
                 scanf("%d", &hod);
-                enviarDatos(clientfd, "hod", hod);
+                respuesta = enviarDatos(clientfd, "hod", hod);
+                validarRespuesta(respuesta);
             break;
 
             case 4:
                 printf("Búsqueda de tiempo de viaje medio iniciada \n");
-	            
-                struct timespec begin, end; 
+
+                // Capturar el tiempo de inicio
                 clock_gettime(CLOCK_REALTIME, &begin);
                 
                 double mean_time = solicitarBusqueda(clientfd);
@@ -49,8 +60,9 @@ int main(int argc, char *argv[]){
                 if(mean_time == -1){
                     printf("NA\n");
                 }else{
-                    printf("Media: %f\n", mean_time);
+                    printf("Tiempo medio: %f\n", mean_time);
                 }
+                // Capturar el tiempo de fin
                 clock_gettime(CLOCK_REALTIME, &end);
 
                 long seconds = end.tv_sec - begin.tv_sec;
@@ -60,7 +72,8 @@ int main(int argc, char *argv[]){
             break;
 
             case 5: 
-                return 0;
+                //cerrarServidor(clientfd);
+                close(clientfd);
             break;
 
             default:
@@ -69,4 +82,18 @@ int main(int argc, char *argv[]){
 
         }
     }while(opcion != 5);
+
+    return 0;
+}
+
+void validarRespuesta(int respuesta){
+    int cg;
+    if(respuesta == 200){
+        printf("\nSe registró el valor con exito, ingrese cualquier tecla para continuar: ");
+        scanf("%d", &cg);
+        printf("\n");
+    }else{
+        printf("\nError, el servidor no ha registrado el valor del número\n");
+    }
+    return;
 }
