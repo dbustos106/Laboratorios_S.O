@@ -56,23 +56,29 @@ int main(int argc, char *argv[]){
                 clock_gettime(CLOCK_REALTIME, &begin);
                 
                 double mean_time = solicitarBusqueda(clientfd);
-
                 if(mean_time == -1){
-                    printf("NA\n");
+                    printf("Respuesta: NA");
                 }else{
-                    printf("Tiempo medio: %f\n", mean_time);
+                    printf("Respuesta: %f.", mean_time);
                 }
+
                 // Capturar el tiempo de fin
                 clock_gettime(CLOCK_REALTIME, &end);
-
+                // comentario de prueba
                 long seconds = end.tv_sec - begin.tv_sec;
                 long nanoseconds = end.tv_nsec - begin.tv_nsec;
                 double elapsed = seconds + nanoseconds*1e-9;
-                printf("Tiempo: %f segundos\n", elapsed);
+                printf("Tiempo de cómputo: %f segundos\n", elapsed);
+
+                char gf;
+                printf("Ingrese cualquier tecla para continuar");
+                scanf("%s", &gf);
+                printf("/n");
+                
             break;
 
             case 5: 
-                //cerrarServidor(clientfd);
+                cerrarServidor(clientfd);
                 close(clientfd);
             break;
 
@@ -87,11 +93,10 @@ int main(int argc, char *argv[]){
 }
 
 void validarRespuesta(int respuesta){
-    int cg;
+    char cg;
     if(respuesta == 200){
         printf("\nSe registró el valor con exito, ingrese cualquier tecla para continuar: ");
-        scanf("%d", &cg);
-        printf("\n");
+        scanf("%s", &cg);
     }else{
         printf("\nError, el servidor no ha registrado el valor del número\n");
     }

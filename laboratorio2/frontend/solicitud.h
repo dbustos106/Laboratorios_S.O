@@ -68,6 +68,7 @@ void cerrarServidor(int clientfd){
     verificar(r = send(clientfd, "metodo:close", 60, 0), 
         "\n-->Error en send(): ");
 
+    return;
 }
 
 int hacerConexion(char* dirIp){
