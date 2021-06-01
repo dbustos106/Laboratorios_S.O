@@ -41,7 +41,7 @@ int enviarDatos(int clientfd, char *campo, int num){
 
     // Se recibe la respuesta del servidor
     r = recv(clientfd, &respuesta, 4, 0);
-    printf("Respuesta: %d ", respuesta);
+
     free(datos);
     return respuesta;
 }
@@ -56,7 +56,6 @@ double solicitarBusqueda(int clientfd){
 
     // Se recibe la respuesta del servidor
     r = recv(clientfd, &mean_time, 8, 0);
-    printf("Respuesta: %f\n", mean_time);
 
     return mean_time;
 }

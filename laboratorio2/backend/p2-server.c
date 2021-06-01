@@ -95,63 +95,63 @@ void* handle_conection(void *pclient){
         fflush(stdout);
 
         // Interpretar el mensaje recibido
-        char* numero = (char*) malloc(8*sizeof(char));
-        char* campo = (char*) malloc(8*sizeof(char));
         char* metodo = (char*) malloc(5*sizeof(char));
-
         metodo = strasign(metodo, 5, buffer, 7, ',');
 
         if(strcmp(metodo, "PUT") == 0){
-            int pos = 12;
-            for(int i = 0; i < 8; i++){
-                pos = pos + 1;
-                *(campo + i) = *(buffer + 12 + i);
-                if(*(buffer+12+i+1) == ':'){
-                    *(campo+i+1) = 0;
-                    break; 
-                }
+
+            char* numero = (char*) malloc(8*sizeof(char));
+            char* campo = (char*) malloc(8*sizeof(char));
+            campo = strasign(campo, 8, buffer, 12, ':');
+    
+            if(strcmp(campo, "sourceid") == 0){
+                numero = strasign(numero, 8, buffer, 21, '\n');
+                sourceId = atoi(numero);
+            }else if(strcmp(campo, "dstid") == 0){
+                numero = strasign(numero, 8, buffer, 18, '\n');
+                dstId = atoi(numero);
+            }else{
+                numero = strasign(numero, 8, buffer, 16, '\n');
+                hod = atoi(numero);
             }
-            numero = strasign(numero, 8, buffer, pos + 1, '\n');
+
+            // Envio respuesta al cliente
+            int respuesta = 200;
+            verificar(r = send(clientfd, &respuesta, 4, 0), "Error en el send");
+
+            free(campo);
+            free(numero);
 
         }else if(strcmp(metodo, "GET") == 0){
-            printf("ES GET");
+            double mean_time = busqueda(sourceId, dstId, hod);
+            verificar(r = send(clientfd, &mean_time, 8, 0), "Error en el send");
+            
         }else{
-            printf("Es close");
+            break;
         }
 
-        printf("METODO: [%s]\n", metodo);
-        printf("CAMPOOO: [%s]\n", campo);
-        printf("NUMEROOO: [%s]\n", numero);
+        printf("sourceid: [%d]\n", sourceId);
+        printf("dstid: [%d]\n", dstId);
+        printf("hod: [%d]\n", hod);
 
-        /*double mean_time = busqueda(sourceId, dstId, hod);
-        verificar(r = send(clientfd, &mean_time, 8, 0), "Error en el send");
-        sprintf(numero, "%f", mean_time);
-
-        
-        printf("Campo: %s\n", campo);
-        printf("Número: %s\n", numero);*/
         // Escritura del archivo log
-        //struct timespec currentTime; 
-        //clock_gettime(CLOCK_REALTIME, &currentTime);
+        struct timespec currentTime; 
+        clock_gettime(CLOCK_REALTIME, &currentTime);
 
-        //log = openFile(log, "./Archivos/log.txt", "a");
-        //pthread_mutex_lock(&mutex);
-        //fprintf(log, "%s", clientEstruct.clientIP);
-        //fprintf(log, "%s", dirIp);
-        //pthread_mutex_unlock(&mutex); 
+        pthread_mutex_lock(&mutex);
 
-        int respuesta = 200;
-        verificar(r = send(clientfd, &respuesta, 4, 0), "Error en el send");
+        log = openFile(log, "./Archivos/log.txt", "a");
+        // ESCRITURAAAAA
+        //dd
+        fclose(log);
+
+        pthread_mutex_unlock(&mutex); 
+
         free(buffer);
-        free(campo);
         free(metodo);
-        //free(numero);
-        //fclose(log);
-
     }
 
-
-    close(clientfd);
+    close(clientEstruct.clientfd);
     printf("Closing connection\n");
 
     return NULL;
