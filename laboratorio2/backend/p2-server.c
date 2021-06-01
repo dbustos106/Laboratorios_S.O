@@ -20,6 +20,7 @@
 pthread_mutex_t mutex;
 ClientEstruct* clientes;
 
+char* strasign(char* chr, int tam, char* buffer, int num, char delimiter);
 int verificar(int desc, char* message);
 void* handle_conection(void* pclient);
 
@@ -69,70 +70,66 @@ int main(){
 }
 
 void* handle_conection(void *pclient){
-    printf("entro al handle\n");
     ClientEstruct clientEstruct = *((ClientEstruct *) pclient);
     int clientfd = clientEstruct.clientfd;
     int sourceId = 0, dstId = 0, hod = 0;
     char* dirIp = "][Cliente:";
     FILE *log;
 
-    //strcat(dirIp, *clientEstruct.clientIP);
     free(pclient);
-    printf("ENTRO AL CICLO\n");
+
     while(true){
         int r, tam = 0;
-        char* buffer = malloc(60*sizeof(char));
-        printf("Estoy al inicio del ciclo\n");
+        char* buffer = (char*) malloc(60*sizeof(char));
+
         while((r = recv(clientfd, buffer, 60*sizeof(char)-tam, 0)) > 0){
             tam = tam + r;
             if(tam >= 60-1 || *(buffer + tam-1)  == '\n'){
                 break;
             } 
         }
-        verificar(r, "\n-->Error en recv(): ");
 
+        verificar(r, "\n-->Error en recv(): ");
+        *(buffer+tam-1) = 0; 
         printf("Request: %s\n", buffer);
         fflush(stdout);
-        free(buffer);
-        /*// Interpretar el mensaje recibido
-        char* campo;
-        int numero;
-        char* metodo = malloc(4*sizeof(char));
-        sprintf(metodo, "%s","PUT");
-        char* metodo2 = malloc(4*sizeof(char));
-        sprintf(metodo2, "%s","GET");
-        char* metodo3 = malloc(6*sizeof(char));
-        sprintf(metodo3, "%s","CLOSE");
 
-        if((numero = strstr(buffer, metodo)) != NULL) {
-            if(strstr(buffer, "sourceid") != NULL){
-                campo = "][sourceid:";
-                numero = numero + 14;
-                sourceId = atoi(numero);
-            }else{
-                if(strstr(buffer, "dstid") != NULL){
-                    campo = "][dstid:";
-                    numero = numero + 11;
-                    dstId = atoi(numero);
-                }else{
-                    campo = "][hod:";
-                    numero = numero + 9;
-                    hod = atoi(numero);
+        // Interpretar el mensaje recibido
+        char* numero = (char*) malloc(8*sizeof(char));
+        char* campo = (char*) malloc(8*sizeof(char));
+        char* metodo = (char*) malloc(5*sizeof(char));
+
+        metodo = strasign(metodo, 5, buffer, 7, ',');
+
+        if(strcmp(metodo, "PUT") == 0){
+            int pos = 12;
+            for(int i = 0; i < 8; i++){
+                pos = pos + 1;
+                *(campo + i) = *(buffer + 12 + i);
+                if(*(buffer+12+i+1) == ':'){
+                    *(campo+i+1) = 0;
+                    break; 
                 }
             }
+            numero = strasign(numero, 8, buffer, pos + 1, '\n');
 
-            int respuesta = 200;
-            verificar(r = send(clientfd, &respuesta, 4, 0), "Error en el send");
-
-        }else if(strstr(buffer, metodo2) != NULL){
-            campo = "][busqueda:";
-            double mean_time = busqueda(sourceId, dstId, hod);
-            verificar(r = send(clientfd, &mean_time, 8, 0), "Error en el send");
-            sprintf(numero, "%f", mean_time);
-
+        }else if(strcmp(metodo, "GET") == 0){
+            printf("ES GET");
+        }else{
+            printf("Es close");
         }
+
+        printf("METODO: [%s]\n", metodo);
+        printf("CAMPOOO: [%s]\n", campo);
+        printf("NUMEROOO: [%s]\n", numero);
+
+        /*double mean_time = busqueda(sourceId, dstId, hod);
+        verificar(r = send(clientfd, &mean_time, 8, 0), "Error en el send");
+        sprintf(numero, "%f", mean_time);
+
+        
         printf("Campo: %s\n", campo);
-        printf("Número: %s\n", numero);
+        printf("Número: %s\n", numero);*/
         // Escritura del archivo log
         //struct timespec currentTime; 
         //clock_gettime(CLOCK_REALTIME, &currentTime);
@@ -142,12 +139,15 @@ void* handle_conection(void *pclient){
         //fprintf(log, "%s", clientEstruct.clientIP);
         //fprintf(log, "%s", dirIp);
         //pthread_mutex_unlock(&mutex); 
-*/
-        //free(numero);
-        //fclose(log);
-        //free(campo);
+
         int respuesta = 200;
         verificar(r = send(clientfd, &respuesta, 4, 0), "Error en el send");
+        free(buffer);
+        free(campo);
+        free(metodo);
+        //free(numero);
+        //fclose(log);
+
     }
 
 
@@ -156,6 +156,17 @@ void* handle_conection(void *pclient){
 
     return NULL;
 }
+
+char* strasign(char* chr, int tam, char* buffer, int num, char delimiter){
+    for(int i = 0; i < tam; i++){
+        *(chr + i) = *(buffer + num + i);
+        if(*(buffer+num+i+1) == delimiter){
+            *(chr+i+1) = 0;
+            break; 
+        }
+    }
+    return chr;
+} 
 
 int verificar(int desc, char* message){
     if(desc < 0){
