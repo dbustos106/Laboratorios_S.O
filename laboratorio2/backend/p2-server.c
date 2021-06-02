@@ -82,8 +82,6 @@ void* handle_conection(void *pclient){
     char* clientIp = clientEstruct->clientIP;
     int sourceId = 0, dstId = 0, hod = 0;
 
-    free(pclient);
-
     while(true){
         int r, tam = 0;
         char* buffer = (char*) malloc(60*sizeof(char));
