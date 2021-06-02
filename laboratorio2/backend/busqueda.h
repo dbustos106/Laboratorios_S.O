@@ -8,9 +8,9 @@
 FILE* openFile(FILE* file, char* dir, char* modo){
     file=fopen(dir, modo);
     if(file==NULL){
-        printf("Error leyendo archivo\n");
+        //printf("Error leyendo archivo\n");
     }else{
-        printf("Archivo leido con exito\n");
+        //printf("Archivo leido con exito\n");
     }
     return file;
 }

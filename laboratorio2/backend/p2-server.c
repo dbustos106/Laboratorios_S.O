@@ -94,10 +94,10 @@ void* handle_conection(void *pclient){
         }
 
         verificar(r, "\n-->Error en recv(): ");
+        
         *(buffer+tam-1) = 0; 
-        printf("Request: %s\n", buffer);
         fflush(stdout);
-        sleep(60);
+
         // Interpretar el mensaje recibido
         char* metodo = (char*) malloc(5*sizeof(char));
         metodo = strasign(metodo, 5, buffer, 7, ',');
