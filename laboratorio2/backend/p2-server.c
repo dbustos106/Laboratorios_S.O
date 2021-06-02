@@ -19,6 +19,7 @@
 
 pthread_mutex_t mutex;
 ClientEstruct* clientes;
+int puntero;
 
 char* strasign(char* chr, int tam, char* buffer, int num, char delimiter);
 void writeLog(char* dirIp, char* solicitud, char* valor);
@@ -48,6 +49,11 @@ int main(){
     verificar(r = listen(serverfd, BACKLOG), "\n-->Error en Listen(): ");
     
     clientes = malloc(32*sizeof(ClientEstruct));
+    puntero = -1;
+    
+    for(int i = 0; i < 32; i++){
+        (clientes + i)->clientfd = -1;
+    }
 
     while(true){
         verificar(clientfd = accept(serverfd, (struct sockaddr *)&client, &tamano), 
@@ -56,24 +62,24 @@ int main(){
         char* dirIp = inet_ntoa(client.sin_addr);
         fflush(stdout);
 
-        ClientEstruct* clientEstruct = malloc(sizeof(ClientEstruct));
-        clientEstruct->clientfd = clientfd;
-        clientEstruct->clientIP = dirIp;
+        // Ingresar nuevo dato
+        do{
+            puntero = (puntero + 1) % 33;
+        }while((clientes + puntero)->clientfd != -1);
 
-        //while(//dormir hasta que alguna de las pos se libere){
-         //   sleep(0.5);
-        //}
+        (clientes + puntero)->clientfd = clientfd;
+        (clientes + puntero)->clientIP = dirIp;
 
         pthread_t t;
-        pthread_create(&t, NULL,(void *) handle_conection, clientEstruct);     
+        pthread_create(&t, NULL,(void *) handle_conection, (clientes + puntero));     
     }
     return 0;
 }
 
 void* handle_conection(void *pclient){
-    ClientEstruct clientEstruct = *((ClientEstruct *) pclient);
-    int clientfd = clientEstruct.clientfd;
-    char* clientIp = clientEstruct.clientIP;
+    ClientEstruct* clientEstruct = (ClientEstruct *) pclient;
+    int clientfd = clientEstruct->clientfd;
+    char* clientIp = clientEstruct->clientIP;
     int sourceId = 0, dstId = 0, hod = 0;
 
     free(pclient);
@@ -122,9 +128,7 @@ void* handle_conection(void *pclient){
             // Bloqueo la sección crítica
             pthread_mutex_lock(&mutex);
 
-            char* dirIp = malloc(8*sizeof(char));
-            sprintf(dirIp, "%s", "0.0.0.0");
-            writeLog(dirIp, campo, numero);
+            writeLog(clientIp, campo, numero);
 
             // Desbloqueo la sección crítica
             pthread_mutex_unlock(&mutex);     
@@ -141,10 +145,13 @@ void* handle_conection(void *pclient){
             char* resultado = malloc(8*sizeof(char));
             sprintf(resultado, "%f", mean_time);
 
+            // Bloqueo la sección crítica
+            pthread_mutex_lock(&mutex);
 
-            char* dirIp = malloc(8*sizeof(char));
-            sprintf(dirIp, "%s", "0.0.0.0");
-            writeLog(dirIp, solicitud, resultado);
+            writeLog(clientIp, solicitud, resultado);
+
+            // Desbloqueo la sección crítica
+            pthread_mutex_unlock(&mutex);  
         }else{
             break;
         }
@@ -157,9 +164,10 @@ void* handle_conection(void *pclient){
         free(metodo);
     }
 
-    close(clientEstruct.clientfd);
-    printf("Closing connection\n");
+    close(clientEstruct->clientfd);
+    clientEstruct->clientfd = -1;
 
+    printf("Closing connection\n");
     return NULL;
 }
 
