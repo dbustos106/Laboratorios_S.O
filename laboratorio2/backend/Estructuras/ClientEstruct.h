@@ -1,5 +1,5 @@
-#ifndef Queue_h
-#define Queue_h
+#ifndef ClientEstruct_h
+#define ClientEstruct_h
 
 #include <stdio.h>
 

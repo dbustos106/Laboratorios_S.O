@@ -37,8 +37,6 @@ int enviarDatos(int clientfd, char *campo, int num){
     verificar(r = send(clientfd, datos, 60, 0), 
         "\n-->Error en send(): ");
 
-    printf("Se envió el mensaje y se espera respuesta\n");
-
     // Se recibe la respuesta del servidor
     r = recv(clientfd, &respuesta, 4, 0);
 

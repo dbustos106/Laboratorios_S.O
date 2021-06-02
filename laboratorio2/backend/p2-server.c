@@ -1,3 +1,4 @@
+#include "./Estructuras/ClientEstruct.h"
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
@@ -12,7 +13,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "busqueda.h"
-#include "./Estructuras/Queue.h"
  
 #define PORT 3535
 #define BACKLOG 32
@@ -97,7 +97,7 @@ void* handle_conection(void *pclient){
         *(buffer+tam-1) = 0; 
         printf("Request: %s\n", buffer);
         fflush(stdout);
-
+        sleep(60);
         // Interpretar el mensaje recibido
         char* metodo = (char*) malloc(5*sizeof(char));
         metodo = strasign(metodo, 5, buffer, 7, ',');
@@ -154,10 +154,6 @@ void* handle_conection(void *pclient){
             break;
         }
 
-        printf("sourceid: [%d]\n", sourceId);
-        printf("dstid: [%d]\n", dstId);
-        printf("hod: [%d]\n", hod);
-
         free(buffer);
         free(metodo);
     }
@@ -165,7 +161,6 @@ void* handle_conection(void *pclient){
     close(clientEstruct->clientfd);
     clientEstruct->clientfd = -1;
 
-    printf("Closing connection\n");
     return NULL;
 }
 
