@@ -72,8 +72,6 @@ void cerrarServidor(int clientfd){
 int hacerConexion(char* dirIp){
     int clientfd, r;
     struct sockaddr_in client;
-    struct hostent *he;
-    char buffer[32];
     
     verificar(clientfd = socket(AF_INET, SOCK_STREAM, 0), 
         "\n-->Error en socket():");
