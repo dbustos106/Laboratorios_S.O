@@ -51,6 +51,7 @@ int main(){
     clientes = malloc(32*sizeof(ClientEstruct));
     puntero = -1;
     
+    // Se inicializan las posiciones de los clientes
     for(int i = 0; i < 32; i++){
         (clientes + i)->clientfd = -1;
     }
@@ -67,15 +68,18 @@ int main(){
             puntero = (puntero + 1) % 33;
         }while((clientes + puntero)->clientfd != -1);
 
+        // Se asignan los datos del nuevo cliente
         (clientes + puntero)->clientfd = clientfd;
         (clientes + puntero)->clientIP = dirIp;
 
         pthread_t t;
+        // Se asigna el cliente a un nuevo hilo
         pthread_create(&t, NULL,(void *) handle_conection, (clientes + puntero));     
     }
     return 0;
 }
 
+// Funcion ejecutada por un hilo para atender a un cliente
 void* handle_conection(void *pclient){
     ClientEstruct* clientEstruct = (ClientEstruct *) pclient;
     int clientfd = clientEstruct->clientfd;
@@ -86,6 +90,7 @@ void* handle_conection(void *pclient){
         int r, tam = 0;
         char* buffer = (char*) malloc(60*sizeof(char));
 
+        // Se recibe el mensaje del cliente
         while((r = recv(clientfd, buffer, 60*sizeof(char)-tam, 0)) > 0){
             tam = tam + r;
             if(tam >= 60-1 || *(buffer + tam-1)  == '\n'){
@@ -126,6 +131,7 @@ void* handle_conection(void *pclient){
             // Bloqueo la sección crítica
             pthread_mutex_lock(&mutex);
 
+            // Se escribe el archivo log
             writeLog(clientIp, campo, numero);
 
             // Desbloqueo la sección crítica
@@ -135,6 +141,7 @@ void* handle_conection(void *pclient){
             free(numero);        
 
         }else if(strcmp(metodo, "GET") == 0){
+            // Se realiza la busqueda
             double mean_time = busqueda(sourceId, dstId, hod);
             verificar(r = send(clientfd, &mean_time, 8, 0), "Error en el send");
             
@@ -146,11 +153,14 @@ void* handle_conection(void *pclient){
             // Bloqueo la sección crítica
             pthread_mutex_lock(&mutex);
 
+            // Se escribe el archivo log
             writeLog(clientIp, solicitud, resultado);
 
             // Desbloqueo la sección crítica
             pthread_mutex_unlock(&mutex);  
         }else{
+            free(buffer);
+            free(metodo);
             break;
         }
 
@@ -158,12 +168,14 @@ void* handle_conection(void *pclient){
         free(metodo);
     }
 
+    // Se libera el espacio del cliente
     close(clientEstruct->clientfd);
     clientEstruct->clientfd = -1;
 
     return NULL;
 }
 
+// Función para escribir el archivo log
 void writeLog(char* dirIp, char* solicitud, char* valor){
     time_t tiempo = time(0);
     struct tm *tlocal = localtime(&tiempo);
@@ -186,6 +198,7 @@ void writeLog(char* dirIp, char* solicitud, char* valor){
     fclose(log);
 }
 
+// Función que completa el puntero chr con la información del buffer
 char* strasign(char* chr, int tam, char* buffer, int num, char delimiter){
     for(int i = 0; i < tam; i++){
         *(chr + i) = *(buffer + num + i);
