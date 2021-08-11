@@ -65,7 +65,7 @@ int main(){
 
         // Ingresar nuevo dato
         do{
-            puntero = (puntero + 1) % 33;
+            puntero = (puntero + 1) % 32;
         }while((clientes + puntero)->clientfd != -1);
 
         // Se asignan los datos del nuevo cliente
