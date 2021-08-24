@@ -28,11 +28,11 @@ do
 
     wait $!
 
-    #echo Archivos
-    #gcc Archivos_productor.c -o Archivos_productor
-    #./Archivos_productor $i $valor $metrica &
-    #gcc Archivos_consumidor.c -o Archivos_consumidor
-    #./Archivos_consumidor $i $valor $metrica
+    echo Ficheros
+    gcc ficheros.c -o ficheros
+    ./ficheros $i $valor $metrica
+
+    wait $!
 
     echo Sockets
     gcc Sockets_productor.c -lpthread -lm -o Sockets_productor
