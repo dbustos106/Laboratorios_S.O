@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define NumExp 5
 
 int main(int argc, char *argv[]){
 
@@ -16,32 +17,41 @@ int main(int argc, char *argv[]){
         tamano = tamano*1000000;
     }
 
-    int fd, r;
-    fd = open("/tmp/mkfifo", O_RDONLY);
 
     char* buf = (char*) malloc(tamano*sizeof(char));
 
-    int tam = 0;
-    // Leer datos de la tuberia
-    while((r = read(fd, buf + tam, tamano*sizeof(char)-tam)) > 0){
-        tam = tam + r;
-        if(tam >= tamano){
-            break;
-        }
-    }
-    *(buf + tam) = 0;
-    fflush(stdout); 
-    
-    free(buf);
-    close(fd);
+    // Hacer NumExp experimentos
+    for(int i = 0; i < NumExp; i++){
 
-    int fd2;
-    // Enviar mensaje de confirmación
-    mkfifo("/tmp/mkfifo2", 0666);
-    fd2 = open("/tmp/mkfifo2", O_WRONLY);
-    write(fd2, "Mensaje recibido", 17);
+        // Abrir la primera tuberia
+        int fd, r;
+        fd = open("/tmp/mkfifo", O_RDONLY);
+
+        // Crear la segunda tuberia
+        int fd2;
+        mkfifo("/tmp/mkfifo2", 0666);
+        fd2 = open("/tmp/mkfifo2", O_WRONLY);
+
+        // Leer datos de la tuberia
+        int tam = 0;
+        while((r = read(fd, buf + tam, tamano*sizeof(char)-tam)) > 0){
+            tam = tam + r;
+            if(tam >= tamano){
+                break;
+            }
+        }
+        *(buf + tam) = 0;
+        fflush(stdout); 
     
-    close(fd2);
-    
+        //printf("Mensaje: %s\n", buf);
+        close(fd);        
+
+        // Enviar mensaje de confirmación
+        write(fd2, "Mensaje recibido", 16);
+        close(fd2);
+    }
+
+    free(buf);
+
     return 0;   
 }

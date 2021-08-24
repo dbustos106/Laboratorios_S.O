@@ -6,8 +6,8 @@
 #define FileName "data.dat"
 
 void reportar_y_salir(const char* msg) {
-  perror(msg);
-  exit(-1); 
+    perror(msg);
+    exit(-1); 
 }
 
 int main() {

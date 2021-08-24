@@ -2,13 +2,14 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <time.h>
 
+#define NumExp 5
 
+struct timespec begin, end; 
+int pipefd1[2], pipefd2[2];
 pid_t pid;
-int pipefd1[2];
-int pipefd2[2];
 int r;
-
 
 /*
 Crear apuntadores a los archivos binarios
@@ -35,26 +36,45 @@ void productor(char *ruta, int tamano){
     char *buffer = malloc(tamano*sizeof(char)); 
     fread(buffer, tamano, sizeof(char), file);
 
-    int tam = 0;
-    // Escribir datos en la tuberia
-    while((r = write(pipefd1[1], buffer + tam, tamano*sizeof(char)-tam)) > 0){
-        tam = tam + r;
-        if(tam >= tamano){
-            break;
+    // Hacer NumExp experimentos
+    double tiempoSum = 0;
+    for(int i = 0; i < NumExp; i++){
+
+        // Capturar el tiempo de inicio
+        clock_gettime(CLOCK_REALTIME, &begin);
+
+        // Escribir datos en la tuberia
+        int tam = 0;
+        while((r = write(pipefd1[1], buffer + tam, tamano*sizeof(char)-tam)) > 0){
+            tam = tam + r;
+            if(tam >= tamano){
+                break;
+            }
         }
+
+        // Recibir mensaje de confirmación
+        char *respuesta = malloc(16*sizeof(char));
+        r = read(pipefd2[0], respuesta, 16);
+        //printf("%s\n", respuesta);
+        free(respuesta);
+
+        // Capturar el tiempo de fin
+        clock_gettime(CLOCK_REALTIME, &end);
+
+        // Calcular el tiempo transcurrido
+        long seconds = end.tv_sec - begin.tv_sec;
+        long nanoseconds = end.tv_nsec - begin.tv_nsec;
+        double elapsed = seconds + nanoseconds*1e-9;
+
+        tiempoSum = tiempoSum + elapsed;
     }
 
-    free(buffer);
+    printf("Tiempo medio de énvio usando pipe(): %f segundos\n", tiempoSum/NumExp);
+
     fclose(file);
+    free(buffer);
     close(pipefd1[1]);
-
-    // Recibir mensaje de confirmación
-    char *respuesta = malloc(17*sizeof(char));
-    r = read(pipefd2[0], respuesta, 16);
-    //printf("%s\n", respuesta);
-
     close(pipefd2[0]);
-    free(respuesta);
     
     exit(0);
 }
@@ -66,22 +86,28 @@ Proceso Consumidor
 void consumidor(int tamano){
     char* buffer = (char*) malloc(tamano*sizeof(char));
 
-    int tam = 0;
-    // Leer datos de la tuberia
-    while((r = read(pipefd1[0], buffer + tam, tamano*sizeof(char)-tam)) > 0){
-        tam = tam + r;
-        if(tam >= tamano){
-            break;
+    // Hacer NumExp experimentos
+    for(int i = 0; i < NumExp; i++){
+
+        // Leer datos de la tuberia
+        int tam = 0;
+        while((r = read(pipefd1[0], buffer + tam, tamano*sizeof(char)-tam)) > 0){
+            tam = tam + r;
+            if(tam >= tamano){
+                break;
+            }
         }
+        *(buffer + tam) = 0;
+        fflush(stdout); 
+
+        //printf("Mensaje: %s\n", buffer);
+
+        // Enviar mensaje de confirmación
+        r = write(pipefd2[1], "Mensaje recibido", 16);
     }
-    *(buffer + tam) = 0;
-    fflush(stdout); 
 
     free(buffer);
     close(pipefd1[0]);
-
-    // Enviar mensaje de confirmación
-    r = write(pipefd2[1], "Mensaje recibido", 16);
     close(pipefd2[1]);
 }
 
@@ -119,13 +145,13 @@ int main(int argc, char *argv[]){
     }
 
     if(pid == 0){  
-        close(pipefd1[0]);
-        close(pipefd2[1]);
-        productor(ruta, tamano);
-    }else{
         close(pipefd1[1]);
         close(pipefd2[0]);
         consumidor(tamano);
+    }else{
+        close(pipefd1[0]);
+        close(pipefd2[1]);
+        productor(ruta, tamano);
     }
 
     free(ruta);

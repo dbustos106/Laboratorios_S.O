@@ -6,6 +6,9 @@
 #include <string.h>
 #include <time.h>
 
+#define NumExp 5
+
+struct timespec begin, end; 
 
 // Crear apuntadores a los archivos binarios
 FILE* openFile(FILE* file, char* dir, char* modo){
@@ -32,42 +35,65 @@ double main(int argc, char *argv[]){
     }else{
         tamano = tamano*1000;
     }
-
-
+    
     FILE *file;
     file = openFile(file, ruta, "r+");
     
-    char*buf = malloc(tamano*sizeof(char));
+    char *buf = malloc(tamano*sizeof(char));
     fread(buf, tamano, sizeof(char), file);
 
 
-    int fd,w; 
-    mkfifo("/tmp/mkfifo", 0666);
-    fd = open("/tmp/mkfifo", O_WRONLY);
+    // Hacer NumExp experimentos
+    double tiempoSum = 0;
+    for(int i = 0; i < NumExp; i++){
+
+        // Crear la primera tuberia
+        int fd,r; 
+        mkfifo("/tmp/mkfifo", 0666);
+        fd = open("/tmp/mkfifo", O_WRONLY);
     
-    int tam = 0;
-    // Escribir datos en la tuberia
-    while((w = write(fd, buf + tam, tamano*sizeof(char)-tam)) > 0){
-        tam = tam + w;
-        if(tam >= tamano){
-            break;
+        // Abrir la segunda tuberia
+        int fd2;
+        fd2 = open("/tmp/mkfifo2", O_RDONLY);
+
+        // Capturar el tiempo de inicio
+        clock_gettime(CLOCK_REALTIME, &begin);
+
+        // Escribir datos en la tuberia
+        int tam = 0;
+        while((r = write(fd, buf + tam, tamano*sizeof(char)-tam)) > 0){
+            tam = tam + r;
+            if(tam >= tamano){
+                break;
+            }
         }
+        close(fd);        
+
+        // Recibir mensaje de confirmación
+        char *respuesta = malloc(16*sizeof(char));
+        r = read(fd2, respuesta, 16);
+        //printf("%s\n", respuesta);
+
+        free(respuesta);
+        close(fd2);
+
+        // Capturar el tiempo de fin
+        clock_gettime(CLOCK_REALTIME, &end);
+
+        // Calcular el tiempo transcurrido
+        long seconds = end.tv_sec - begin.tv_sec;
+        long nanoseconds = end.tv_nsec - begin.tv_nsec;
+        double elapsed = seconds + nanoseconds*1e-9;
+
+        tiempoSum = tiempoSum + elapsed;
     }
-     
+
+    printf("Tiempo medio de énvio usando mkfifo(): %f segundos\n", tiempoSum/NumExp);
+
     free(buf);
-    close(fd);
     fclose(file);
 
-    int fd2;
-    // Recibir mensaje de confirmación
-    char *respuesta = malloc(17*sizeof(char));
-    fd2 = open("/tmp/mkfifo2", O_RDONLY);
-    read(fd2, respuesta, 17);
-    //printf("%s\n", respuesta);
-
-    free(respuesta);
     free(ruta);
-    close(fd2);
 
     return 0;
 }
