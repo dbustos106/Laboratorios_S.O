@@ -14,11 +14,11 @@ int main(int argc, char *argv[]){
     if(strcmp(argv[3], "Mb") == 0){
         tamano = tamano*1000000;
     }else{
-        tamano = tamano*1000000;
+        tamano = tamano*1000;
     }
 
 
-    char* buf = (char*) malloc(tamano*sizeof(char));
+    char* buffer = (char*) malloc(tamano*sizeof(char));
 
     // Hacer NumExp experimentos
     for(int i = 0; i < NumExp; i++){
@@ -34,16 +34,16 @@ int main(int argc, char *argv[]){
 
         // Leer datos de la tuberia
         int tam = 0;
-        while((r = read(fd, buf + tam, tamano*sizeof(char)-tam)) > 0){
+        while((r = read(fd, buffer + tam, tamano*sizeof(char)-tam)) > 0){
             tam = tam + r;
             if(tam >= tamano){
                 break;
             }
         }
-        *(buf + tam) = 0;
+        *(buffer + tam) = 0;
         fflush(stdout); 
     
-        //printf("Mensaje: %s\n", buf);
+        //printf("Mensaje: %s\n", buffer);
         close(fd);        
 
         // Enviar mensaje de confirmación
@@ -51,7 +51,7 @@ int main(int argc, char *argv[]){
         close(fd2);
     }
 
-    free(buf);
+    free(buffer);
 
     return 0;   
 }

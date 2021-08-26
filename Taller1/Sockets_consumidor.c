@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include <string.h>
  
-#define PORT 3535
+#define PORT 3536
 #define NumExp 3
 
 int r;
@@ -72,7 +72,7 @@ int main(int argc, char *argv[]){
         //printf("Mensaje: %s\n", buffer);
 
         // Enviar mensaje de confirmación
-        verificar(r = send(clientfd, "Confirmacion de mensaje\n", 30, 0), 
+        verificar(r = send(clientfd, "mensaje recibido", 30, 0), 
                 "\n-->Error en send(): ");
     }
 

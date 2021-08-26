@@ -36,6 +36,7 @@ void productor(char *ruta, int tamano){
     char *buffer = malloc(tamano*sizeof(char)); 
     fread(buffer, tamano, sizeof(char), file);
 
+
     // Hacer NumExp experimentos
     double tiempoSum = 0;
     for(int i = 0; i < NumExp; i++){
@@ -126,6 +127,7 @@ int main(int argc, char *argv[]){
         tamano = tamano*1000;
     }
 
+
     r = pipe(pipefd1);
     if(r < 0){
         perror("error pipe1()");
@@ -137,6 +139,7 @@ int main(int argc, char *argv[]){
         perror("error pipe2()");
         exit(-1);
     }
+
 
     pid = fork();
     if(pid < 0){

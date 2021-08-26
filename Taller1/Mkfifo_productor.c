@@ -36,11 +36,12 @@ double main(int argc, char *argv[]){
         tamano = tamano*1000;
     }
     
+
     FILE *file;
     file = openFile(file, ruta, "r+");
     
-    char *buf = malloc(tamano*sizeof(char));
-    fread(buf, tamano, sizeof(char), file);
+    char *buffer = malloc(tamano*sizeof(char));
+    fread(buffer, tamano, sizeof(char), file);
 
 
     // Hacer NumExp experimentos
@@ -61,7 +62,7 @@ double main(int argc, char *argv[]){
 
         // Escribir datos en la tuberia
         int tam = 0;
-        while((r = write(fd, buf + tam, tamano*sizeof(char)-tam)) > 0){
+        while((r = write(fd, buffer + tam, tamano*sizeof(char)-tam)) > 0){
             tam = tam + r;
             if(tam >= tamano){
                 break;
@@ -90,7 +91,7 @@ double main(int argc, char *argv[]){
 
     printf("Tiempo medio de énvio usando mkfifo(): %f segundos\n", tiempoSum/NumExp);
 
-    free(buf);
+    free(buffer);
     fclose(file);
 
     free(ruta);

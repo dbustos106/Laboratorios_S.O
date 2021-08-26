@@ -18,11 +18,8 @@
 #include <string.h>
 #include <time.h>
 
-#include <stdio.h>
-#include <stdlib.h>
 
-
-#define PORT 3535
+#define PORT 3536
 #define BACKLOG 32
 #define NumExp 3
 
@@ -90,11 +87,13 @@ int main(int argc, char *argv[]){
     verificar(clientfd = accept(serverfd, (struct sockaddr *)&client, &tamanoSock), 
                 "\n-->Error en accept: ");
 
+
     FILE *file;
     file = openFile(file, ruta, "r+");
 
     char *buffer = malloc(tamano*sizeof(char)); 
     fread(buffer, tamano, sizeof(char), file);    
+
 
     // Hacer NumExp experimentos
     double tiempoSum = 0;
@@ -126,9 +125,9 @@ int main(int argc, char *argv[]){
 
     printf("Tiempo medio de énvio usando sockets(): %f segundos\n", tiempoSum/NumExp);
 
-    fclose(file);
     free(buffer);
     close(clientfd);
+    fclose(file);
 
     free(ruta);
 

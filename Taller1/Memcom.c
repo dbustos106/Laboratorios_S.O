@@ -10,6 +10,7 @@
 #define NumExp 5
 
 struct timespec begin, end; 
+int pipefd1[2], pipefd2[2];
 key_t key = 1234;
 pid_t pid;
 int r;
@@ -28,14 +29,33 @@ FILE* openFile(FILE* file, char* dir, char* modo){
 }
 
 
-void productor(char *ap, char *ruta, int tamano){
+void productor(char *ruta, int tamano){
+
+    char *ap;
+    int shmId;
+
+    // Crear un espacio de memoria compartida con key = 1234
+    shmId = shmget(key, tamano, 0666 | IPC_CREAT);
+    if(shmId < 0){
+        printf("Error en shmget creacion \n");
+        exit(-1);
+    }
+
+    // Crear un apuntador al espacio de memoria compartido
+    ap = (char*)shmat(shmId, 0, 0);
+    if(ap < 0){
+        perror("Error en shamt creacion");
+        exit(-1);
+    }
+
 
     FILE *file;
     file = openFile(file, ruta, "r");
 
-    char *buf = malloc(tamano*sizeof(char));
-    fread(buf, tamano, sizeof(char), file);
-    
+    char *buffer = malloc(tamano*sizeof(char));
+    fread(buffer, tamano, sizeof(char), file);
+
+
     // Hacer NumExp experimentos
     double tiempoSum = 0;
     for(int i = 0; i < NumExp; i++){
@@ -43,23 +63,24 @@ void productor(char *ap, char *ruta, int tamano){
         // Capturar el tiempo de inicio
         clock_gettime(CLOCK_REALTIME, &begin);
 
-        while(*ap == 1){
-            sleep((0.000001));
-        }   
 
-        // Escribir datos en memoria
-        sprintf(ap+1, "%s", buf);      
-        *ap = 1;
+        // Escribir datos en la memoria compartida
+        strncpy(ap, buffer, tamano);   
 
-        while(*ap == 1){
-            sleep((0.000001));
-        }
+        // Habilitamos la lectura por parte del consumidor
+        r = write(pipefd1[1], "c", sizeof(char));
+        
 
+        // Esperamos mensaje de confirmacion
+        char aux;
+        r = read(pipefd2[0], &aux, sizeof(char));
+        
         // Recibir mensaje de confirmación
-        char* respuesta = malloc(24*sizeof(char));
-        sscanf(ap+1, "%s\n", respuesta);
-        //printf("Mensaje de confirmacion: %s\n", respuesta);
+        char *respuesta = malloc(16*sizeof(char));
+        strncpy(respuesta, ap, 16);  
+        //printf("%s\n", respuesta);
         free(respuesta);
+
 
         // Capturar el tiempo de fin
         clock_gettime(CLOCK_REALTIME, &end);
@@ -74,9 +95,22 @@ void productor(char *ap, char *ruta, int tamano){
     
     printf("Tiempo medio de envío usando memCom(): %f segundos\n", tiempoSum/NumExp);
 
-    free(buf);
+    free(buffer);
     fclose(file);
+    close(pipefd1[1]);
+    close(pipefd2[0]);
 
+    // Desvincular el apuntador ap al espacio de memoria compartida
+    r = shmdt(ap);
+    if(r < 0){
+        perror("Error en shmdt");
+        exit(-1);
+    }
+
+    // Eliminamos el espacio de memoria compartida
+    shmctl(shmId, IPC_RMID, 0);
+
+    exit(0);
 }
 
 
@@ -85,14 +119,14 @@ void consumidor(int tamano){
     char *ap;
     int shmId;
 
-    //Recuperar la Id del espacio memoria compartido con key = 1234
+    // Recuperar la Id del espacio memoria compartido con key = 1234
     shmId = shmget(key, sizeof(double), 0666);
     if(shmId < 0){
         printf("Error en shmget");
         exit(-1);
     }
 
-    //Crear un apuntador al espacio de memoria compartido
+    // Crear un apuntador al espacio de memoria compartido
     ap = (char*)shmat(shmId, 0, 0);
     if(ap < 0){
         perror("Error en shamt");
@@ -104,28 +138,34 @@ void consumidor(int tamano){
     // Hacer NumExp experimentos
     for(int i = 0; i < NumExp; i++){
 
-        while(*ap == 0){
-            sleep((0.000001));
-        }
+        // Leer datos de la tuberia
+        char aux;
+        r = read(pipefd1[0], &aux, sizeof(char));        
 
-        // Leer datos en memoria
-        sscanf(ap+1, "%s\n", buffer);
+        // Leer datos de la memoria compartida
+        strncpy(buffer, ap, tamano);
         //printf("buffer: %s \n", buffer);
     
-        // Enviar mensaje de confirmación
-        sprintf(ap+1, "%s", "Confirmacion de llegada\n");
+        // Escribir mensaje de confirmación
+        strncpy(ap, "mensaje recibido", 16);
+        
+        // Habilitar la lectura del mensaje de confirmación
+        r = write(pipefd2[1], "d", 1);        
 
-        *ap = 0;
     }
 
-    //Desvincular el apuntador ap al espacio de memoria compartida
+    free(buffer);
+    close(pipefd1[0]);
+    close(pipefd2[1]);
+
+    // Desvincular el apuntador ap al espacio de memoria compartida
     r = shmdt(ap);
     if(r < 0){
         perror("Error en shmdt");
         exit(-1);
     }
 
-    //Eliminamos el espacio de memoria compartida
+    // Eliminamos el espacio de memoria compartida
     shmctl(shmId, IPC_RMID, 0);
 
 }
@@ -145,25 +185,19 @@ int main(int argc, char *argv[]){
         tamano = tamano*1000;
     }
     
-    char *ap;
-    int shmId;
 
-    // Crear un espacio de memoria compartida con key = 1234
-    shmId = shmget(key, tamano, 0666 | IPC_CREAT);
-    if(shmId < 0){
-        printf("Error en shmget creacion \n");
+    r = pipe(pipefd1);
+    if(r < 0){
+        perror("error pipe1()");
         exit(-1);
     }
 
-    // Crear un apuntador al espacio de memoria compartido
-    ap = (char*)shmat(shmId, 0, 0);
-    if(ap < 0){
-        perror("Error en shamt creacion");
+    r = pipe(pipefd2);
+    if(r < 0){
+        perror("error pipe2()");
         exit(-1);
     }
 
-    // Crear valor por default de la bandera
-    *ap = 0;
 
     pid = fork();
     if(pid < 0){
@@ -172,22 +206,15 @@ int main(int argc, char *argv[]){
     }
 
     if(pid == 0){  
+        close(pipefd1[1]);
+        close(pipefd2[0]);
         consumidor(tamano);
     }else{
-        productor(ap, ruta, tamano);
+        close(pipefd1[0]);
+        close(pipefd2[1]);
+        productor(ruta, tamano);
     }
 
     free(ruta);
-
-    //Desvincular el apuntador ap al espacio de memoria compartida
-    r = shmdt(ap);
-    if(r < 0){
-        perror("Error en shmdt");
-        exit(-1);
-    }
-
-    //Eliminamos el espacio de memoria compartida
-    shmctl(shmId, IPC_RMID, 0);
-
     return 0;
 }

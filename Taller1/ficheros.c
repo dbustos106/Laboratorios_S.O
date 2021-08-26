@@ -28,7 +28,7 @@ FILE* openFile(FILE* file, char* dir, char* modo){
 /*
 Proceso Productor
 */
-void productor(FILE* data, char *ruta, int tamano){
+void productor(char *ruta, int tamano){
 
     FILE *file;
     file = openFile(file, ruta, "r+");
@@ -36,29 +36,29 @@ void productor(FILE* data, char *ruta, int tamano){
     char *buffer = malloc(tamano*sizeof(char)); 
     fread(buffer, tamano, sizeof(char), file);
 
+
     // Hacer NumExp experimentos
     double tiempoSum = 0;
     for(int i = 0; i < NumExp; i++){
 
+        FILE *dataP;
+        dataP = openFile(dataP, "./data.txt", "w+");
+
         // Capturar el tiempo de inicio
         clock_gettime(CLOCK_REALTIME, &begin);
 
-        // Escribir datos en la tuberia
-        fwrite(buffer, sizeof(char), tamano, data);
+
+        // Escribir datos en el fichero
+        fwrite(buffer, sizeof(char), tamano, dataP);
 
         // Habilitamos la lectura del consumidor
         r = write(pipefd1[1], "c", sizeof(char));
-
+        fclose(dataP);
 
         // Esperamos mensaje de confirmacion
         char aux;
         r = read(pipefd2[0], &aux, sizeof(char));
 
-        // Recibir mensaje de confirmación
-        char *respuesta = malloc(12*sizeof(char));
-        fread(respuesta, sizeof(char),12, data);
-        //printf("Respuesta%s\n", respuesta);
-        free(respuesta);
 
         // Capturar el tiempo de fin
         clock_gettime(CLOCK_REALTIME, &end);
@@ -71,13 +71,14 @@ void productor(FILE* data, char *ruta, int tamano){
         tiempoSum = tiempoSum + elapsed;
     }
 
-    printf("Tiempo medio de énvio usando pipe(): %f segundos\n", tiempoSum/NumExp);
+    printf("Tiempo medio de énvio usando ficheros(): %f segundos\n", tiempoSum/NumExp);
 
-    fclose(file);
     free(buffer);
     close(pipefd1[1]);
     close(pipefd2[0]);
-    
+
+    fclose(file);
+
     exit(0);
 }
 
@@ -87,34 +88,42 @@ Proceso Consumidor
 */
 void consumidor(int tamano){
 
-    // Abrir fichero para lectura
-    FILE *data;
-    data = openFile(data, "./data.txt", "r+");
-
     char* buffer = (char*) malloc(tamano*sizeof(char));
 
     // Hacer NumExp experimentos
     for(int i = 0; i < NumExp; i++){
 
-        // Leer datos de la tuberia
+        // Abrir fichero para lectura
+        FILE *dataC;
+        dataC = openFile(dataC, "./data.txt", "r+");
+
+        // Esperar a que se produzcan los datos
         char aux;
         r = read(pipefd1[0], &aux, sizeof(char));
 
-        fread(buffer,sizeof(char),tamano, data);
+        // Leer los datos del fichero
+        int tam = 0;
+        while((r = fread(buffer + tam, sizeof(char), tamano - tam, dataC)) > 0){
+            tam = tam + r;
+            if(tam >= tamano){
+                break;
+            }
+        }
+        *(buffer + tam) = 0;
+        fflush(stdout); 
+
         //printf("buffer: %s\n", buffer);
+        fclose(dataC);
 
-        // Escribir datos en la tuberia
-        fwrite("confirmacion", sizeof(char), 12, data);
-
-        // Enviar mensaje de confirmación
+        // Habilitar lectura del mensaje de confirmación
         r = write(pipefd2[1], "d", 1);
+    
     }
 
     free(buffer);
     close(pipefd1[0]);
     close(pipefd2[1]);
 
-    fclose(data);
 }
 
 
@@ -132,9 +141,7 @@ int main(int argc, char *argv[]){
         tamano = tamano*1000;
     }
 
-    FILE *data;
-    data = openFile(data, "./data.txt", "w+");  
-
+  
     r = pipe(pipefd1);
     if(r < 0){
         perror("error pipe1()");
@@ -146,6 +153,7 @@ int main(int argc, char *argv[]){
         perror("error pipe2()");
         exit(-1);
     }
+
 
     pid = fork();
     if(pid < 0){
@@ -160,10 +168,10 @@ int main(int argc, char *argv[]){
     }else{
         close(pipefd1[0]);
         close(pipefd2[1]);
-        productor(data, ruta, tamano);
+        productor(ruta, tamano);
     }
 
     free(ruta);
-
+    
     return 0;
 }
